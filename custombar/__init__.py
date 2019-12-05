@@ -1,7 +1,7 @@
-"""
-Define the logics to build various bars
+# custombar
+# __init__.py
+from ._tickbar import TickBar
+from ._volbar import VolBar
+from ._dollarbar import DollarBar
 
-* Tick Bars
-* Volume Bars
-* Dollar Bars
-"""
+__all__ = ["TickBar","VolBar", "DollarBar"]
