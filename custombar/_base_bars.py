@@ -26,6 +26,9 @@ class _BaseBars(ABC):
         # Base properties
         self.dictcol   = dictcol
         self.threshold = threshold
+        # these two vars will be used for imbalance bar
+        self.prev_tick = {}
+        self.prev_tick_rule = 0
 
     def transform(self, df):
         """
@@ -98,3 +101,23 @@ class _BaseBars(ABC):
             ohlcv.append((end,o,h,l,c, vol))
         cols = ['datetime','open','high','low','close', 'volume']
         return (pd.DataFrame(ohlcv,columns=cols))
+
+    def _apply_tick_rule(self, price):
+        """
+        Applies the tick rule as defined on page 29.
+
+        :param price: Price at time t
+        :return: The signed tick
+        """
+        if self.prev_tick:
+            tick_diff = price - self.prev_tick['price']
+        else:
+            tick_diff = 0
+
+        if tick_diff != 0:
+            signed_tick = np.sign(tick_diff)
+            self.prev_tick_rule = signed_tick
+        else:
+            signed_tick = self.prev_tick_rule
+
+        return signed_tick

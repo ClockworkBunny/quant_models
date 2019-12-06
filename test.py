@@ -6,9 +6,5 @@ df.reset_index(inplace=True)
 df = df[['dates', 'price', 'v']]
 colmap = {"dates":"datetime","v": "volume"}
 
-print(df.head())
-d = TickBar(5, colmap)
-print(d.threshold)
+d = TickBar(50, colmap)
 new_df = d.transform(df)
-print('sampled df')
-print(new_df.head())
