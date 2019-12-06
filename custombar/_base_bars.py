@@ -38,12 +38,13 @@ class _BaseBars(ABC):
         if self.dictcol != None:
             df.rename(columns=self.dictcol, inplace=True)
             df['datetime'] = pd.to_datetime(df['datetime'])
-            df.set_index('datetime')
+            df.set_index('datetime', inplace=True)
             df.drop_duplicates()
         else:
             df['datetime'] = pd.to_datetime(df['datetime'])
-            df.set_index('datetime')
-            df.drop_duplicates()            
+            df.set_index('datetime', inplace=True)
+            df.drop_duplicates()
+        #print(df.head())
         self._assert_csv(df)
         ref_idx = self._extract_bars(df)
         return self._create_bars(df, ref_idx)
@@ -52,8 +53,10 @@ class _BaseBars(ABC):
     def _extract_bars(self, data):
         """
         This method is required by all the bar types and is used to create the desired bars.
-        :param data: (DataFrame) Contains 3 columns - date_time, price, and volume.
-        :return: (List) of bars built using the current batch.
+        # args
+            data : the input data which has date as the index, which has two columns: price and volume
+        # returns
+            data : dataframe with ohlcv values, which is the ending time index
         """
 
     @staticmethod
@@ -76,15 +79,15 @@ class _BaseBars(ABC):
 
 
     def _create_bars(self, df, sub):
-        '''
+        """
         fn: get ohlc from custom bars
-    
+
         # args
             df : reference pandas dataframe with all prices and volume
             sub : custom tick pandas series (index is the datetime, the column is the price)
         # returns
             tick_df : dataframe with ohlcv values, which is the ending time index
-        '''
+        """
         ohlcv = []
         for i in range(sub.index.shape[0]-1):
             start,end = sub.index[i], sub.index[i+1]
@@ -95,4 +98,3 @@ class _BaseBars(ABC):
             ohlcv.append((end,o,h,l,c, vol))
         cols = ['datetime','open','high','low','close', 'volume']
         return (pd.DataFrame(ohlcv,columns=cols))
-   

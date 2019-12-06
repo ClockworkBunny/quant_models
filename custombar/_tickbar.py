@@ -37,7 +37,7 @@ class TickBar(_BaseBars):
         t_price = inputdf['price']
         ts      = 0
         idx     = []
-        for i, x in enumerate(t_price):
+        for i, _ in enumerate(t_price):
             ts += 1
             if ts >= self.threshold:
                 idx.append(i)
