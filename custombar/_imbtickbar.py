@@ -9,20 +9,23 @@ import numpy as np
 from ._base_bars import _BaseBars
 from util import ewma
 
-class Imbalance_TickBar(_BaseBars):
+class Imbalance_Bar(_BaseBars):
     """
     Abstract base class which contains the structure which is shared between the various standard and information
     driven bars. There are some methods contained in here that would only be applicable to information bars but
     they are included here so as to avoid a complicated nested class structure.
     """
 
-    def __init__(self, threshold=None, dictcol=None, num_prev_bars=3, exp_num_ticks_init=50000):
+    def __init__(self, threshold=None, dictcol=None, mode='tick', num_prev_bars=3, exp_num_ticks_init=5000):
         """
         Constructor
 
-        :param file_path: (String) Path to the csv file containing raw tick data in the format[date_time, price, volume]
-        :param metric: (String) type of imbalance bar to create. Example: dollar_imbalance.
-        :param batch_size: (Int) Number of rows to read in from the csv, per batch.
+        # args
+            threshold : the sampling threshold
+            dictcol : dict that map col names to defined col names (datetime, price, volume)
+            mode: it can be tick, or volume or dollar
+            num_prev_bars: how many previous bars are checked for expectation
+            exp_num_ticks_init: the inital guess of expectation of sampled information
         """
         # Base properties
         _BaseBars.__init__(self, threshold, dictcol)
@@ -35,21 +38,27 @@ class Imbalance_TickBar(_BaseBars):
 
         self.expected_imbalance = np.nan
         self.imbalance_array = []
-
-
+        self.metric  = mode
 
     def _extract_bars(self, inputdf):
         """
-        This method is required by all the bar types and is used to create the desired bars.
-        :param data: (DataFrame) Contains 3 columns - date_time, price, and volume.
-        :return: (List) of bars built using the current batch.
+        method that extract the index of rows for sampling
+        # args
+            inputdf : the dataframe that has three columns price, volume and datetime
+        # return:
+            the dataframe only containing the boundary datetime for each sample interval
         """
-        t_price = inputdf['price']
+        df_used = inputdf.copy()
+        df_used = df_used[['price', 'volume']]
         cum_theta      = 0
         idx     = []
         cum_ticks = 0
-        for i, price in enumerate(t_price):
-            imbalance = self._apply_tick_rule(price)
+        for i in range(df_used.shape[0]):
+            dfrow  = df_used.iloc[i,:]
+            price  = dfrow.price
+            volume = dfrow.volume
+            signed_tick = self._apply_tick_rule(price)
+            imbalance   = self._get_imbalance(price, signed_tick, volume)
             self.imbalance_array.append(imbalance)
             cum_theta += imbalance
             cum_ticks += 1
@@ -69,8 +78,7 @@ class Imbalance_TickBar(_BaseBars):
                 self.prev_tick['price'] = price
                 continue
             self.prev_tick['price'] = price
-
-
+        t_price = inputdf['price']
         return t_price.iloc[idx].drop_duplicates()
 
     def _get_expected_imbalance(self, window, imbalance_array):
@@ -96,3 +104,22 @@ class Imbalance_TickBar(_BaseBars):
                 np.array(imbalance_array[-ewma_window:], dtype=float), window=ewma_window)[-1]
 
         return expected_imbalance
+
+    def _get_imbalance(self, price, signed_tick, volume):
+        """
+        Get the imbalance at a point in time, denoted as Theta_t in the book, pg 29.
+
+        :param price: Price at t
+        :param signed_tick: signed tick, using the tick rule
+        :param volume: Volume traded at t
+        :return: Imbalance at time t
+        """
+        if self.metric == 'tick':
+            imbalance = signed_tick
+        if self.metric == 'dollar':
+            imbalance = signed_tick * volume * price
+        if self.metric == 'volume':
+            imbalance = signed_tick * volume
+        else:
+            imbalance = signed_tick
+        return imbalance

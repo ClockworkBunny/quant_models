@@ -113,7 +113,7 @@ class _BaseBars(ABC):
             tick_diff = price - self.prev_tick['price']
         else:
             tick_diff = 0
-
+        signed_tick = 0
         if tick_diff != 0:
             signed_tick = np.sign(tick_diff)
             self.prev_tick_rule = signed_tick
