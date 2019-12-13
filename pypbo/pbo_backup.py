@@ -56,7 +56,16 @@ PBOCore = cls.namedtuple(
 )
 
 
-def pbo(M, S, metric_func, threshold=0.0, n_jobs=1, verbose=False):
+def pbo(
+    M,
+    S,
+    metric_func,
+    threshold,
+    n_jobs=1,
+    verbose=False,
+    plot=False,
+    hist=False,
+):
     """
     Based on http://papers.ssrn.com/sol3/papers.cfm?abstract_id=2326253
 
@@ -284,6 +293,10 @@ def pbo(M, S, metric_func, threshold=0.0, n_jobs=1, verbose=False):
         R_n_star,
         R_bar_n_star,
     )
+
+    if plot:
+        plot_pbo(result, hist=hist)
+
     return result
 
 
