@@ -12,8 +12,7 @@ import collections as cls
 import pandas as pd
 import joblib as job
 import psutil as ps
-
-import pypbo.perf as perf
+import util.metrics as perf
 
 
 PBO = cls.namedtuple(
