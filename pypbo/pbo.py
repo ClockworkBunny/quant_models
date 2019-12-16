@@ -3,9 +3,6 @@ import numpy as np
 import itertools as itr
 import scipy.stats as ss
 import scipy.special as spec
-import seaborn as sns
-
-# import statsmodels.tools.tools as stt
 import statsmodels.distributions.empirical_distribution as smd
 import matplotlib.pyplot as plt
 import collections as cls
@@ -208,20 +205,6 @@ def pbo(M, S, metric_func, threshold=0.0, n_jobs=1, verbose=False):
             )
             for Cs_x in Cs
         )
-        # core_df = pd.DataFrame(cores, columns=PBOCore._fields)
-        # convert to values needed.
-        # # core_df = pd.DataFrame.from_records(cores)
-
-        # J = core_df.J.values
-        # J_bar = core_df.J_bar.values
-        # R = core_df.R.values
-        # R_bar = core_df.R_bar.values
-        # R_rank = core_df.R_rank.values
-        # R_bar_rank = core_df.R_bar_rank.values
-        # rn = core_df.rn.values
-        # rn_bar = core_df.rn_bar.values
-        # w_bar = core_df.w_bar.values
-        # logits = core_df.logits.values
 
         J = [c.J for c in cores]
         J_bar = [c.J_bar for c in cores]
@@ -329,75 +312,6 @@ def pbo_core_calc(Cs, Ms, Ms_values, Ms_index, metric_func, verbose=False):
     )
 
     return core
-
-
-def plot_pbo(pbo_result, hist=False):
-
-    lm = pbo_result.linear_model
-
-    wid, h = plt.rcParams.get("fig.figsize", (10, 5))
-    nplots = 3
-    fig, axarr = plt.subplots(nplots, 1, sharex=False)
-    fig.set_size_inches((wid, h * nplots))
-
-    r2 = lm.rvalue ** 2
-    # adj_r2 = r2 - (1 - r2) / (len(pbo_result.R_n_star) - 2.0)
-    line_label = (
-        "slope: {:.4f}\n".format(lm.slope)
-        + "p: {:.4E}\n".format(lm.pvalue)
-        + "$R^2$: {:.4f}\n".format(r2)
-        + "Prob. OOS Loss: {:.1%}".format(pbo_result.prob_oos_loss)
-    )
-
-    sns.regplot(
-        x="SR_IS",
-        y="SR_OOS",
-        # sns.lmplot(x='SR_IS', y='SR_OOS',
-        data=pd.DataFrame(
-            dict(SR_IS=pbo_result.R_n_star, SR_OOS=pbo_result.R_bar_n_star)
-        ),
-        scatter_kws={"alpha": 0.3, "color": "g"},
-        line_kws={
-            "alpha": 0.8,
-            "label": line_label,
-            "linewidth": 1.0,
-            "color": "r",
-        },
-        ax=axarr[0],
-    )
-    axarr[0].set_title("Performance Degradation, IS vs. OOS")
-    axarr[0].legend(loc="best")
-
-    # TODO hist is turned off at the moment. Error occurs when S is set to
-    # a relatively large number, such as 16.
-    sns.distplot(
-        pbo_result.logits,
-        rug=True,
-        bins=10,
-        ax=axarr[1],
-        rug_kws={"color": "r", "alpha": 0.5},
-        kde_kws={"color": "k", "lw": 2.0, "label": "KDE"},
-        hist=hist,
-        hist_kws={
-            "histtype": "step",
-            "linewidth": 2.0,
-            "alpha": 0.7,
-            "color": "g",
-        },
-    )
-    axarr[1].axvline(0, c="r", ls="--")
-    axarr[1].set_title("Hist. of Rank Logits")
-    axarr[1].set_xlabel("Logits")
-    axarr[1].set_ylabel("Frequency")
-
-    pbo_result.stochastic.plot(secondary_y="SD2", ax=axarr[2])
-    axarr[2].right_ax.axhline(0, c="r")
-    axarr[2].set_title("Stochastic Dominance")
-    axarr[2].set_ylabel("Frequency")
-    axarr[2].set_xlabel("SR Optimized vs. Non-Optimized")
-    axarr[2].right_ax.set_ylabel("2nd Order Stoch. Dominance")
-    plt.show()
-
 
 def psr_from_returns(returns, risk_free=0, target_sharpe=0):
     """
@@ -519,17 +433,6 @@ def dsr_from_returns(test_sharpe, returns_df, risk_free=0):
     )
 
     return out
-
-
-# def sharpe_iid(df, bench=0, factor=np.sqrt(255)):
-#     excess = df - bench
-#     if isinstance(df, pd.DataFrame):
-#         # return factor * (df.mean() - bench) / df.std(ddof=1)
-#         return factor * excess.mean() / excess.std(ddof=1)
-#     else:
-#         # numpy way
-#         return np.mean(excess, axis=0) / np.std(excess,
-#                                                 axis=0, ddof=1) * factor
 
 
 def minTRL(sharpe, skew, kurtosis, target_sharpe=0, prob=0.95):
