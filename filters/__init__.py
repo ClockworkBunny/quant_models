@@ -1,7 +1,5 @@
 """
-Logic regarding the various types of filters:
-
-* CUSUM Filter
+packages that we use the cusum_filter and z_score+filter
 """
 
-from mlfinlab.filters.filters import cusum_filter
+from .filters import cusum_filter, z_score_filter

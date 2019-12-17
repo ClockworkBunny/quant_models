@@ -6,7 +6,7 @@ import numpy as np
 import pandas as pd
 
 # Snippet 3.1, page 44, Daily Volatility Estimates
-from mlfinlab.util.multiprocess import mp_pandas_obj
+from util.multiprocess import mp_pandas_obj
 
 
 # Snippet 3.2, page 45, Triple Barrier Labeling Method
@@ -19,9 +19,12 @@ def apply_pt_sl_on_t1(close, events, pt_sl, molecule):  # pragma: no cover
 
     Mainly it returns a DataFrame of timestamps regarding the time when the first barriers were reached.
 
-    :param close: (series) close prices
-    :param events: (series) of indices that signify "events" (see cusum_filter function
-    for more details)
+    :param
+    1. close: A pandas series of prices
+    2. events: dataframe with two columns: t1: the timestamp of vertical barrier, when the value is np.nan, then no vertical bar
+                                           trgt: the unit width of the horizontal barriers.
+    3. pts1: pts1[0]*trgt is the  
+    4. molecule: a list with the subset of event indcies that will be processed by a single thread.
     :param pt_sl: (array) element 0, indicates the profit taking level; element 1 is stop loss level
     :param molecule: (an array) a set of datetime index values for processing
     :return: DataFrame of timestamps of when first barrier was touched
@@ -51,7 +54,6 @@ def apply_pt_sl_on_t1(close, events, pt_sl, molecule):  # pragma: no cover
         cum_returns = (closing_prices / close[loc] - 1) * events_.at[loc, 'side']  # Path returns
         out.loc[loc, 'sl'] = cum_returns[cum_returns < stop_loss[loc]].index.min()  # Earliest stop loss date
         out.loc[loc, 'pt'] = cum_returns[cum_returns > profit_taking[loc]].index.min()  # Earliest profit taking date
-
     return out
 
 
