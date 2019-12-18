@@ -37,11 +37,10 @@ def get_daily_vol(inputdf, lookback=100, numday=1):
     outputdf.dropna(inplace=True)
     return outputdf
 
-
 def sample_df(inputdf, freq='1D'):
     """
     the function that sample the dataframe based on the input sampling
-    frequency
+    frequency. S, T, H, D, M denotes second, minute, hour, day and month
 
     :param
     inputdf: it is the input dataframe with the columns:
@@ -52,18 +51,16 @@ def sample_df(inputdf, freq='1D'):
     :return
     the dataframe that is resampled based on freq
     """
-    inputdf.set_index('datetime', inplace=True)
-    sampled_df           = pd.DataFrame()
-    sampled_df['open']   = sampled_df.open.resmaple(freq).first()
-    sampled_df['close']  = sampled_df.close.resmaple(freq).last()
-    sampled_df['low']    = sampled_df.low.resmaple(freq).min()
-    sampled_df['high']   = sampled_df.high.resmaple(freq).max()
-    if 'volume' in sampled_df.columns:
-        sampled_df['volume'] = sampled_df.volume.resmaple(freq).sum()
-    sampled_df.reset_index(level=0, inplace=True)
-    sampled_df.sort_values(by=['datetime'], inplace=True)
-    sampled_df.dropna(inplace=True)
-    return sampled_df
+    dfoutput           = pd.DataFrame()
+    dfoutput['open']   = inputdf.open.resample(freq).first()
+    dfoutput['close']  = inputdf.close.resample(freq).last()
+    dfoutput['low']    = inputdf.low.resample(freq).min()
+    dfoutput['high']   = inputdf.high.resample(freq).max()
+    if 'volume' in inputdf.columns:
+        dfoutput['volume'] = inputdf.volume.resample(freq).sum()
+    dfoutput.sort_index(inplace=True)
+    dfoutput.dropna(inplace=True)
+    return dfoutput
 
 def convert_tz(inputdf, src='SG', tar='US'):
     """
@@ -86,4 +83,27 @@ def convert_tz(inputdf, src='SG', tar='US'):
                                .tz_localize(None)
     return output_df
 
-def filter_df_time(inputdf, )
+def filter_df_time(inputdf,
+                   time_range=[('09:30', '15:59')]):
+    """
+    Filter the inputdf based on time and hours.
+
+    :param
+    inputdf: it is the input dataframe with the columns:
+                1. index:   datetime in pd.datetime format
+    time_range: a list of tuple (st, et)
+                each time is in %h:%m formats
+                the points on st and et will be sampled
+
+    :return
+    subdataframe
+    """
+    outputdf = inputdf.copy()
+    all_df = []
+    for sub_range in time_range:
+        st, et = sub_range[0], sub_range[1]
+        subdf = outputdf.between_time(st, et)
+        all_df.append(subdf)
+    outputdf = pd.concat(all_df)
+    outputdf.sort_index(inplace=True)
+    return outputdf
