@@ -23,7 +23,7 @@ def apply_pt_sl_on_t1(close, events, pt_sl, molecule):  # pragma: no cover
     1. close: A pandas series of prices
     2. events: dataframe with two columns: t1: the timestamp of vertical barrier, when the value is np.nan, then no vertical bar
                                            trgt: the unit width of the horizontal barriers.
-    3. pts1: pts1[0]*trgt is the  
+    3. pts1: pts1[0]*trgt is the
     4. molecule: a list with the subset of event indcies that will be processed by a single thread.
     :param pt_sl: (array) element 0, indicates the profit taking level; element 1 is stop loss level
     :param molecule: (an array) a set of datetime index values for processing
