@@ -5,7 +5,7 @@ Utility functions. In particular Chapter20 code on Multiprocessing and Vectoriza
 from .fast_ewma import ewma
 from .multiprocess import expand_call, lin_parts, mp_pandas_obj, nested_parts, process_jobs, process_jobs_, \
     report_progress
-from .utils import get_daily_vol
+from .utils import sample_df, get_daily_vol, convert_tz
 
 from .metrics import log_returns
 from .metrics import returns_gmean
