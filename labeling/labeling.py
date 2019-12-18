@@ -255,7 +255,6 @@ def get_bins(triple_barrier_events, close):
 
     return out_df
 
-
 # Snippet 3.8 page 54
 def drop_labels(events, min_pct=.05):
     """
@@ -267,6 +266,7 @@ def drop_labels(events, min_pct=.05):
     :param min_pct: (float) a fraction used to decide if the observation occurs less than
     that fraction
     :return: (data frame) of events
+    print the data from the simulated results
     """
     # Apply weights, drop labels with insufficient examples
     while True:
@@ -274,8 +274,6 @@ def drop_labels(events, min_pct=.05):
 
         if df0.min() > min_pct or df0.shape[0] < 3:
             break
-
         print('dropped label: ', df0.argmin(), df0.min())
         events = events[events['bin'] != df0.argmin()]
-
     return events

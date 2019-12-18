@@ -4,30 +4,55 @@ General python utility functions
 import pandas as pd
 
 
-def get_daily_vol(close, lookback=100):
+def get_daily_vol(inputdf, lookback=100, numday=1):
     """
-    Snippet 3.1, page 44, Daily Volatility Estimates
+    From AFML books
 
-    Computes the daily volatility at intraday estimation points.
+    For each time step, firstly compute the return based on the given numday. Then, apply a span of lookback days to an expoentially weighted moving
+    average.
 
-    In practice we want to set profit taking and stop-loss limits that are a function of the risks involved
-    in a bet. Otherwise, sometimes we will be aiming too high (tao ≫ sigma_t_i,0), and sometimes too low
-    (tao ≪ sigma_t_i,0 ), considering the prevailing volatility. Snippet 3.1 computes the daily volatility
-    at intraday estimation points, applying a span of lookback days to an exponentially weighted moving
-    standard deviation.
-
-    See the pandas documentation for details on the pandas.Series.ewm function.
-
-    Note: This function is used to compute dynamic thresholds for profit taking and stop loss limits.
-
-    :param close: Closing prices
-    :param lookback: lookback period to compute volatility
-    :return: series of daily volatility value
+    It can be used to compute therholds for profit taking and stop loss limites
+    :parameters
+    inputdf: it is the input dataframe with the columns:
+                1. index:   datetime in pd.datetime format
+                2. columns: at least close
+    lookback: the time interval to compute the ewm volaitilty
+    numday:   1
+    :return:
+    seris of daily volatility value
     """
-    # daily vol re-indexed to close
-    df0 = close.index.searchsorted(close.index - pd.Timedelta(days=1))
+    closeser = inputdf.close
+    df0 = closeser.index.searchsorted(closeser.index - pd.Timedelta(days=numday))
     df0 = df0[df0 > 0]
-    df0 = (pd.Series(close.index[df0 - 1], index=close.index[close.shape[0] - df0.shape[0]:]))
-    df0 = close.loc[df0.index] / close.loc[df0.values].values - 1  # daily returns
+    df0 = (pd.Series(closeser.index[df0 - 1], index=closeser.index[closeser.shape[0] - df0.shape[0]:]))
+    df0 = closeser.loc[df0.index] / closeser.loc[df0.values].values - 1  # daily returns
     df0 = df0.ewm(span=lookback).std()
-    return df0
+    outputdf  = df0.to_frame(name='vol')
+    outputdf.dropna(inplace=True)
+    return outputdfS
+
+
+def sampledf(inputdf, freq='1D'):
+    """
+    the function that sample the dataframe based on the input sampling
+    frequency
+    :param
+    inputdf: it is the input dataframe with the columns:
+                1. index:   datetimein pd.datetime format
+                2. columns: high, open, low, close, volume(potential)
+    freq: the sampling frequency, which can be '1D', '5m' and so on
+    :return
+    the dataframe that is resampled based on freq
+    """
+    inputdf.set_index('datetime', inplace=True)
+    sampled_df           = pd.DataFrame()
+    sampled_df['open']   = sampled_df.open.resmaple(freq).first()
+    sampled_df['close']  = sampled_df.close.resmaple(freq).last()
+    sampled_df['low']    = sampled_df.low.resmaple(freq).min()
+    sampled_df['high']   = sampled_df.high.resmaple(freq).max()
+    if 'volume' in sampled_df.columns:
+        sampled_df['volume'] = sampled_df.volume.resmaple(freq).sum()
+    sampled_df.reset_index(level=0, inplace=True)
+    sampled_df.sort_values(by=['datetime'], inplace=True)
+    sampled_df.dropna(inplace=True)
+    return sampled_df
