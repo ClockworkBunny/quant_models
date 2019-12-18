@@ -32,7 +32,7 @@ class VolBar(_BaseBars):
         """
         This method is required by all the bar types and is used to create the desired bars.
         :param data: (DataFrame) Contains 3 columns - date_time, price, and volume.
-        :return: (List) of bars built using the current batch.
+        :return: return datetimeIndex
         """
         t_vol = inputdf['volume']
         ts      = 0
@@ -43,4 +43,4 @@ class VolBar(_BaseBars):
                 idx.append(i)
                 ts = 0
                 continue
-        return inputdf.iloc[idx,:]['price'].drop_duplicates()
+        return inputdf.iloc[idx,:].index

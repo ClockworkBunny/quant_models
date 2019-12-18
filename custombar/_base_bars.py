@@ -40,15 +40,12 @@ class _BaseBars(ABC):
         """
         if self.dictcol != None:
             df.rename(columns=self.dictcol, inplace=True)
-            df['datetime'] = pd.to_datetime(df['datetime'])
-            df.set_index('datetime', inplace=True)
             df.drop_duplicates()
         else:
-            df['datetime'] = pd.to_datetime(df['datetime'])
-            df.set_index('datetime', inplace=True)
             df.drop_duplicates()
-        #print(df.head())
+        df = df[['price', 'volume']]
         self._assert_csv(df)
+        df.sort_index(inplace=True)
         ref_idx = self._extract_bars(df)
         return self._create_bars(df, ref_idx)
 
@@ -87,20 +84,24 @@ class _BaseBars(ABC):
 
         # args
             df : reference pandas dataframe with all prices and volume
-            sub : custom tick pandas series (index is the datetime, the column is the price)
+            sub : datetime index
         # returns
             tick_df : dataframe with ohlcv values, which is the ending time index
         """
         ohlcv = []
-        for i in range(sub.index.shape[0]-1):
-            start,end = sub.index[i], sub.index[i+1]
-            tmp_df = df.loc[start:end]
-            max_px, min_px = tmp_df.price.max(), tmp_df.price.min()
-            vol          = tmp_df.volume.sum()
-            o, h, l, c, vol = sub.iloc[i], max_px, min_px, sub.iloc[i+1], vol
-            ohlcv.append((end,o,h,l,c, vol))
-        cols = ['datetime','open','high','low','close', 'volume']
-        return (pd.DataFrame(ohlcv,columns=cols))
+        for i in range(sub.shape[0]-1):
+            start,end         = sub[i], sub[i+1]
+            tmp_df            = df.loc[start:end]
+            max_px, min_px    = tmp_df.price.max(), tmp_df.price.min()
+            open_px, close_px = tmp_df.iloc[0].price, tmp_df.iloc[-1].price
+            vol               = tmp_df.volume.sum()
+            o, h, l, c, vol   = open_px, max_px, min_px, close_px, vol
+            ohlcv.append((start,o,h,l,c, vol))
+        cols  = ['datetime','open','high','low','close', 'volume']
+        outdf = pd.DataFrame(ohlcv,columns=cols)
+        outdf.set_index('datetime', inplace=True)
+        outdf.sort_index(inplace=True)
+        return outdf
 
     def _apply_tick_rule(self, price):
         """
