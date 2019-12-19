@@ -45,4 +45,4 @@ class DollarBar(_BaseBars):
                 idx.append(i)
                 ts = 0
                 continue
-        return df_used.iloc[idx]['price'].drop_duplicates()
+        return inputdf.iloc[idx,:].index.drop_duplicates()

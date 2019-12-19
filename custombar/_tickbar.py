@@ -43,4 +43,4 @@ class TickBar(_BaseBars):
                 idx.append(i)
                 ts = 0
                 continue
-        return t_price.iloc[idx].drop_duplicates()
+        return inputdf.iloc[idx,:].index.drop_duplicates()

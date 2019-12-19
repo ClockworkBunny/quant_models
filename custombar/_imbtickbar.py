@@ -78,8 +78,7 @@ class Imbalance_Bar(_BaseBars):
                 self.prev_tick['price'] = price
                 continue
             self.prev_tick['price'] = price
-        t_price = inputdf['price']
-        return t_price.iloc[idx].drop_duplicates()
+        return inputdf.iloc[idx,:].index.drop_duplicates()
 
     def _get_expected_imbalance(self, window, imbalance_array):
         """

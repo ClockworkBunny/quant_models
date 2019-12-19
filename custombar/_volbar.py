@@ -43,4 +43,4 @@ class VolBar(_BaseBars):
                 idx.append(i)
                 ts = 0
                 continue
-        return inputdf.iloc[idx,:].index
+        return inputdf.iloc[idx,:].index.drop_duplicates()
