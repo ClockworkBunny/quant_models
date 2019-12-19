@@ -19,15 +19,7 @@ Therefore, here we will sample based on number of ticks, volume and dollar.
 
 
 #### Probability of Backtest Overfitting
-How to quantify the probabilitiy of a group of trading strategies that may be overfitted. This project is modified from [the repo](https://github.com/esvhd/pypbo)N = 100
-T = 200
-mu, sigma = 0, 0.01
-M = np.random.normal(mu, sigma, size=(T, N))
-
-print(M.shape)
-
-S = 12
-
+How to quantify the probabilitiy of a group of trading strategies that may be overfitted. This project is modified from the [repo](https://github.com/esvhd/pypbo)
 
 
 #### Utils Module
