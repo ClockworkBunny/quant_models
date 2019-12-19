@@ -2,7 +2,12 @@
 Some code sinppet for quant trading with a foucs on machine learning applications. Most ideas are from the book named advances in financial machine learning and the [mlfinlab](https://github.com/hudson-and-thames/mlfinlab) project.
 
 
+1. Basic dataformat: the input data format is a pandas dataframe with the datetime index. And it should be ordered by the time. At the same time, it has ohlcv format.
 
+2. The folder ```TestingNotebooks``` have all the ipython notebooks that contain the testing logics:
+    * utils functions
+    * info-driven bar
+    * Probabilistic of backtesting overfitting
 
 #### CustomBar Projects
 This project is designed to sample financial data to create alternative bar data. In the book "Advances in Financial Machine Learning", the draw backs of coventional time bars are:
@@ -25,7 +30,7 @@ S = 12
 
 
 
-#### Util Module
+#### Utils Module
 Supported functions include:
 
 1.
