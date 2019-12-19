@@ -4,24 +4,20 @@ import matplotlib.pyplot as plt
 
 import scipy.stats as ss
 import statsmodels.tsa.stattools as sts
-
-# import statsmodels.tools.tools as stt
 import statsmodels.distributions.empirical_distribution as sde
-
-# import statsmodels.stats.diagnostic as ssd
-
 import warnings
+from scipy.stats import norm
 
-# maxzero = lambda x: np.maximum(x, 0)
-# vmax = np.vectorize(np.maximum)
+
+
 
 # default no. of trading days in a year, 252.
 trading_days = 252
-
+gamma = 0.5772156649015328606
+e = np.exp(1)
 
 def _is_pandas(d):
     return isinstance(d, pd.DataFrame) or isinstance(d, pd.Series)
-
 
 def _reindex_dates(source, target):
     """
@@ -47,7 +43,6 @@ def _reindex_dates(source, target):
     nan_check = nan_flag.sum()
     assert nan_check == 0, "Unmatched dates, NaN #{}".format(nan_check)
     return result
-
 
 def log_excess(rtns, bench, debug=True):
     """
@@ -333,32 +328,6 @@ def sortino_iid(rtns, bench=0, factor=1, log=True):
     return np.sqrt(factor) * excess.mean() / semi_std
 
 
-# def rolling_lpm(returns, target_rtn, moment, window):
-#     adj_returns = returns - target_rtn
-#     adj_returns[adj_returns > 0] = 0
-#     return pd.rolling_mean(adj_returns**moment,
-#                            window=window, min_periods=window)
-
-
-# def rolling_sortino(returns, window, target_rtn=0):
-#     '''
-#     This is ~150x faster than using rolling_ratio which uses rolling_apply
-#     '''
-#     num = pd.rolling_mean(returns, window=window,
-#                           min_periods=window) - target_rtn
-#     denom = np.sqrt(rolling_lpm(returns, target_rtn,
-#                                 moment=2, window=window))
-#     return num / denom
-
-
-# def sharpe(returns, bench_rtn=0):
-#     excess = returns - bench_rtn
-#     if isinstance(excess, pd.DataFrame) or isinstance(excess, pd.Series):
-#         return excess.mean() / excess.std(ddof=1)
-#     else:
-#         return np.nanmean(excess) / np.nanstd(excess, ddof=1)
-
-
 def match_rtn_dates(rtns, bench):
     if not (isinstance(rtns, pd.Series) or isinstance(rtns, pd.DataFrame)):
         # no need to reindex
@@ -468,7 +437,6 @@ def sharpe_iid_adjusted(rtns, bench=0, factor=1, log=True):
         )
     return adjusted_sharpe(sr, skew, excess_kurt) * np.sqrt(factor)
 
-
 def adjusted_sharpe(sr, skew, excess_kurtosis):
     """
     Adjusted Sharpe Ratio, acount for skew and kurtosis in return series.
@@ -489,7 +457,7 @@ def adjusted_sharpe(sr, skew, excess_kurtosis):
     return sr * (1 + (skew / 6.0) * sr + excess_kurtosis / 24.0 * sr ** 2)
 
 
-def sharpe_non_iid(rtns, bench=0, q=trading_days, p_critical=0.05, log=True):
+def sharpe_non_iid(rtns, bench=0, factor=trading_days, p_critical=0.05, log=True):
     """
     Return Sharpe Ratio adjusted for auto-correlation, iff Ljung-Box test
     indicates that the return series exhibits auto-correlation. Based on
@@ -516,15 +484,15 @@ def sharpe_non_iid(rtns, bench=0, q=trading_days, p_critical=0.05, log=True):
     Returns:
         TYPE
     """
-    if type(q) is not np.int64 or type(q) is not np.int32:
-        q = np.round(q, 0).astype(np.int64)
+    if type(factor) is not np.int64 or type(factor) is not np.int32:
+        factor = np.round(factor, 0).astype(np.int64)
 
-    if len(rtns) <= q:
+    if len(rtns) <= factor:
         # raise AssertionError('No. of returns [{}] must be greated than {}'
         #                      .format(len(rtns), q))
         warnings.warn(
             "Sharpe Non-IID: No. of returns [{}] must be greated"
-            " than {}. NaN returned.".format(len(rtns), q)
+            " than {}. NaN returned.".format(len(rtns), factor)
         )
         dim = rtns.shape
         if len(dim) < 2:
@@ -537,22 +505,22 @@ def sharpe_non_iid(rtns, bench=0, q=trading_days, p_critical=0.05, log=True):
     sr = sharpe_iid(rtns, bench=bench, factor=1, log=log)
 
     if not _is_pandas(rtns):
-        adj_factor, pval = sharpe_autocorr_factor(rtns, q=q)
+        adj_factor, pval = sharpe_autocorr_factor(rtns, q=factor)
         if pval < p_critical:
             # reject Ljung-Box Null, there is serial correlation
             return sr * adj_factor
         else:
-            return sr * np.sqrt(q)
+            return sr * np.sqrt(factor)
     else:
         if isinstance(rtns, pd.Series):
-            tests = [sharpe_autocorr_factor(rtns.dropna().values, q=q)]
+            tests = [sharpe_autocorr_factor(rtns.dropna().values, q=factor)]
         else:
             tests = [
-                sharpe_autocorr_factor(rtns[col].dropna().values, q=q)
+                sharpe_autocorr_factor(rtns[col].dropna().values, q=factor)
                 for col in rtns.columns
             ]
         factors = [
-            adj_factor if pval < p_critical else np.sqrt(q)
+            adj_factor if pval < p_critical else np.sqrt(factor)
             for adj_factor, pval in tests
         ]
 
@@ -760,3 +728,43 @@ def calmar_ratio(returns, factor=trading_days, log=True):
     max_dd = np.abs(drawdown(cum_return).min())
 
     return annual_return / max_dd
+
+# analytical formula for expected maximum sharpe ratio
+def _approximate_expected_maximum_sharpe(mean_sharpe,
+                                         var_sharpe,
+                                         nb_trials):
+    return mean_sharpe \
+           + np.sqrt(var_sharpe) \
+           * ((1 - gamma) * norm.ppf(1 - 1 / nb_trials)
+              + gamma * norm.ppf(1 - 1 / (nb_trials * e)))
+
+def compute_deflated_sharpe_ratio(estimated_sharpe,
+                                  sharpe_variance,
+                                  nb_trials,
+                                  backtest_rtns):
+    """
+    Deflated sharpe ration computation:
+
+    :args
+    estimated_sharpe: the sharpe that you want to test, which is usually the best strategy from in-sample
+    sharpe_variance:  the variance of the sharpe over the trails in-sample
+    nb_trials: the number of trials conducted in-sample
+    backtest_rtns: 1-D numpy array or list that is the daily return of the tested algo in the out-sample period
+
+    :return
+    the deflated ratio which is in the range [0,1]. The high,the better.
+    """
+    if isinstance(backtest_rtns, list):
+         backtest_rtns = np.array(backtest_rtns)
+    assert isinstance(backtest_rtns, np.ndarray), "List or Numpy array should be passed for the input return seq"
+    backtest_horizon = backtest_rtns.shape[0]
+    skew     =  ss.skew(backtest_rtns,
+                        bias=False, nan_policy="omit")
+    kurtosis =  ss.kurtosis(backtest_rtns,
+                            bias=False, fisher=True, nan_policy="omit")
+    sro = _approximate_expected_maximum_sharpe(0, sharpe_variance, nb_trials)
+    return norm.cdf(((estimated_sharpe - sro) * np.sqrt(backtest_horizon - 1))
+                    / np.sqrt(1 - skew * estimated_sharpe +
+                              ((kurtosis - 1) / 4) * estimated_sharpe**2
+                              )
+                    )

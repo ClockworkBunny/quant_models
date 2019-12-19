@@ -17,7 +17,7 @@ def get_daily_vol(inputdf, lookback=100, numday=1):
     """
     From AFML books, for each time step, firstly compute the return based on the given numday. Then, apply a span of lookback days to an expoentially weighted moving
     average. It can be used to compute therholds for profit taking and stop loss limites
-    :parameters
+    :args
     inputdf: it is the input dataframe with the columns:
                 1. index:   datetime in pd.datetime format
                 2. columns: at least close
@@ -42,7 +42,7 @@ def sample_df(inputdf, freq='1D'):
     the function that sample the dataframe based on the input sampling
     frequency. S, T, H, D, M denotes second, minute, hour, day and month
 
-    :param
+    :args
     inputdf: it is the input dataframe with the columns:
                 1. index:   datetime in pd.datetime format
                 2. columns: high, open, low, close, volume(potential)
@@ -68,7 +68,7 @@ def convert_tz(inputdf, src='SG', tar='US'):
     Supported regions: SG, US, CN, UK, Europe, JP
 
 
-    :param
+    :args
     inputdf: it is the input dataframe with the columns:
                 1. index:   datetime in pd.datetime format
     src: the abbreviation of source time zone
@@ -88,7 +88,7 @@ def filter_df_time(inputdf,
     """
     Filter the inputdf based on time and hours.
 
-    :param
+    :args
     inputdf: it is the input dataframe with the columns:
                 1. index:   datetime in pd.datetime format
     time_range: a list of tuple (st, et)
@@ -107,3 +107,30 @@ def filter_df_time(inputdf,
     outputdf = pd.concat(all_df)
     outputdf.sort_index(inplace=True)
     return outputdf
+
+
+def sample_pnl(inputdf, freq='1D', cum_mode=True):
+    """
+    the function that sample the pnl dataframe based on the input sampling
+    frequency. S, T, H, D, M denotes second, minute, hour, day and month
+
+    :args
+    inputdf: it is the input pnl dataframe:
+                1. index:   datetime in pd.datetime format
+                2. columns: stat_symbols
+    freq:     the sampling frequency, which can be '1D', '5m' and so on
+    cum_mode: binary variable, the inputdf contain the cum return if True else normal return
+
+    :return
+    the dataframe that is resampled based on freq, which is the normal return
+    """
+    dfoutput           = pd.DataFrame()
+    for colname in inputdf.columns:
+        if cum_mode:
+            dfoutput[colname] = inputdf[colname].resample(freq).last()  \
+                                - inputdf[colname].resample(freq).first()
+        else:
+            dfoutput[colname] = inputdf[colname].resample(freq).sum()
+    dfoutput.sort_index(inplace=True)
+    dfoutput.dropna(inplace=True)
+    return dfoutput
