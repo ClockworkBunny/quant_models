@@ -12,6 +12,7 @@ Some code sinppet for quant trading with a foucs on machine learning application
     * utils functions
     * info-driven bar
     * Probabilistic of backtesting overfitting
+    * Testing Sharpe
 
 #### CustomBar Projects
 Sample financial data to create alternative bar data. Conventional bars sampled by time interval may have the following drawbacks:

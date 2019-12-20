@@ -731,25 +731,25 @@ def calmar_ratio(returns, factor=trading_days, log=True):
 
 # analytical formula for expected maximum sharpe ratio
 def _approximate_expected_maximum_sharpe(mean_sharpe,
-                                         var_sharpe,
+                                         std_sharpe,
                                          nb_trials):
     return mean_sharpe \
-           + np.sqrt(var_sharpe) \
+           + std_sharpe \
            * ((1 - gamma) * norm.ppf(1 - 1 / nb_trials)
               + gamma * norm.ppf(1 - 1 / (nb_trials * e)))
 
 def compute_deflated_sharpe_ratio(estimated_sharpe,
-                                  sharpe_variance,
+                                  std_variance,
                                   nb_trials,
                                   backtest_rtns):
     """
     Deflated sharpe ration computation:
 
     :args
-    estimated_sharpe: the sharpe that you want to test, which is usually the best strategy from in-sample
-    sharpe_variance:  the variance of the sharpe over the trails in-sample
-    nb_trials: the number of trials conducted in-sample
-    backtest_rtns: 1-D numpy array or list that is the daily return of the tested algo in the out-sample period
+    1. estimated_sharpe: the sharpe that you want to test, which is usually the best strategy from in-sample
+    2. std_variance:  the std of the sharpe over the trails in-sample
+    3. nb_trials: the number of trials conducted in-sample
+    4. backtest_rtns: 1-D numpy array or list that is the daily return of the tested algo in the out-sample period
 
     :return
     the deflated ratio which is in the range [0,1]. The high,the better.
@@ -762,7 +762,7 @@ def compute_deflated_sharpe_ratio(estimated_sharpe,
                         bias=False, nan_policy="omit")
     kurtosis =  ss.kurtosis(backtest_rtns,
                             bias=False, fisher=True, nan_policy="omit")
-    sro = _approximate_expected_maximum_sharpe(0, sharpe_variance, nb_trials)
+    sro = _approximate_expected_maximum_sharpe(0, std_variance, nb_trials)
     return norm.cdf(((estimated_sharpe - sro) * np.sqrt(backtest_horizon - 1))
                     / np.sqrt(1 - skew * estimated_sharpe +
                               ((kurtosis - 1) / 4) * estimated_sharpe**2

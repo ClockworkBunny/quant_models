@@ -1,5 +1,5 @@
 """
-Utility functions. In particular Chapter20 code on Multiprocessing and Vectorization
+Utility functions
 """
 
 from .fast_ewma import ewma

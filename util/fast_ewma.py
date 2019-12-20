@@ -19,9 +19,11 @@ def ewma(arr_in, window):  # pragma: no cover
         y[t] = (x[t] + (1-a)*x[t-1] + (1-a)^2*x[t-2] + ... + (1-a)^n*x[t-n]) /
                (1 + (1-a) + (1-a)^2 + ... + (1-a)^n).
 
-    :param arr_in: (np.ndarray), (float64) A single dimensional numpy array
-    :param window: (int64) The decay window, or 'span'
-    :return: (np.ndarray) The EWMA vector, same length / shape as ``arr_in``
+    :args
+    1. arr_in: (np.ndarray), (float64) A single dimensional numpy array
+    2. window: (int64) The decay window, or 'span'
+    :return
+    (np.ndarray) The EWMA vector, same length / shape as ``arr_in``
     """
     arr_length = arr_in.shape[0]
     ewma_arr = np.empty(arr_length, dtype=float64)
