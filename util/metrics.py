@@ -1,3 +1,8 @@
+"""
+Contain certain evaluation metrics
+some are from the mlfinlab project
+"""
+
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -729,10 +734,21 @@ def calmar_ratio(returns, factor=trading_days, log=True):
 
     return annual_return / max_dd
 
-# analytical formula for expected maximum sharpe ratio
+
 def _approximate_expected_maximum_sharpe(mean_sharpe,
                                          std_sharpe,
                                          nb_trials):
+    """
+    analytical formula for expected maximum sharpe ratio
+
+    : args
+    mean_sharpe: the mean of sharpe, usually set to 0
+    std_sharpe: the std of sharpe over trials
+    nb_trail: how many trials we have tested
+
+    : return
+    the expected maximum of sharpe
+    """
     return mean_sharpe \
            + std_sharpe \
            * ((1 - gamma) * norm.ppf(1 - 1 / nb_trials)

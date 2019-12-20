@@ -22,6 +22,7 @@ def ewma(arr_in, window):  # pragma: no cover
     :args
     1. arr_in: (np.ndarray), (float64) A single dimensional numpy array
     2. window: (int64) The decay window, or 'span'
+
     :return
     (np.ndarray) The EWMA vector, same length / shape as ``arr_in``
     """

@@ -1,5 +1,5 @@
 """
-Contains the logic from chapter 20 on multiprocessing and vectorization.
+All codes are are from snippets in the Book AFML
 """
 
 import sys
@@ -11,8 +11,6 @@ import multiprocessing as mp
 import numpy as np
 import pandas as pd
 
-
-# Snippet 20.5 (page 306), the lin_parts function
 def lin_parts(num_atoms, num_threads):
     """
     Snippet 20.5 (page 306), the lin_parts function

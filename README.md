@@ -42,7 +42,10 @@ Supported features:
 
 3. metrics
 
-    contain lists of stats that evaluates the trading performance
+    contain lists of metrics that evaluates the trading performance
+    * Adjusted Sharpe
+    * Non-IID Sharpe
+    * Deflated Sharpe Ratio
 
 4. multiprocess
 
