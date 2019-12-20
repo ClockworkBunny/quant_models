@@ -9,27 +9,35 @@ import pandas as pd
 from util.multiprocess import mp_pandas_obj
 
 
-# Snippet 3.2, page 45, Triple Barrier Labeling Method
-def apply_pt_sl_on_ent(close, events, pt_sl, molecule):
+# Apply stop loss/profit taking, if it takes place before ent (end of event)
+def apply_pt_sl_on_ent(df_price, events, pt_sl, molecule):
     """
-    Snippet 3.2, page 45, Triple Barrier Labeling Method
+    From AFML
 
     This function applies the triple-barrier labeling method. It works on a set of
     datetime index values (molecule). This allows the program to parallelize the processing.
 
     Mainly it returns a DataFrame of timestamps regarding the time when the first barriers were reached.
 
-    :param
-    1. close: A pandas series of prices
-    2. events: dataframe with two columns: ent: the timestamp of vertical barrier, when the value is np.nan, then no vertical bar
-                                           trgt: the unit width of the horizontal barriers.
+    :args
+    1. df_price: pd.series
+              it should contain the price
+    2. events: pd.df
+               datetime as index.
+               two columns:
+                    1. ent: the timestamp of vertical barrier, when the value is np.nan, then no vertical bar
+                    2. trgt: the unit width of the horizontal barriers.
     3. pts1: pts1[0]*trgt is the
     4. molecule: a list with the subset of event indcies that will be processed by a single thread.
-    :param pt_sl: (array) element 0, indicates the profit taking level; element 1 is stop loss level
-    :param molecule: (an array) a set of datetime index values for processing
-    :return: DataFrame of timestamps of when first barrier was touched
+
+    :return:
+    pd.df
+    datetime as index.
+    three cols: 1 ent: the vert bar time
+                2 sl:  the time that touch the bottom line
+                3 pt:  the time that touch the up line
     """
-    # Apply stop loss/profit taking, if it takes place before ent (end of event)
+
     events_ = events.loc[molecule]
     out     = events_[['ent']].copy(deep=True)
 
@@ -49,15 +57,15 @@ def apply_pt_sl_on_ent(close, events, pt_sl, molecule):
         stop_loss = pd.Series(index=events.index)  # NaNs
 
     # Get events
-    for loc, vertical_barrier in events_['ent'].fillna(close.index[-1]).iteritems():
-        closing_prices = close[loc: vertical_barrier]  # Path prices for a given trade
-        cum_returns = (closing_prices / close[loc] - 1) * events_.at[loc, 'side']  # Path returns
+    for loc, vertical_barrier in events_['ent'].fillna(df_price.index[-1]).iteritems():
+        closing_prices = df_price[loc: vertical_barrier]  # Path prices for a given trade
+        cum_returns = (closing_prices / df_price[loc] - 1) * events_.at[loc, 'side']  # Path returns
         out.loc[loc, 'sl'] = cum_returns[cum_returns < stop_loss[loc]].index.min()  # Earliest stop loss date
         out.loc[loc, 'pt'] = cum_returns[cum_returns > profit_taking[loc]].index.min()  # Earliest profit taking date
     return out
 
 
-# Snippet 3.4 page 49, Adding a Vertical Barrier
+
 def add_vertical_barrier(df_price, t_events=None, num_days=0, num_hours=0, num_minutes=0, num_seconds=0):
     """
     From AFML, Try to add a Vertical Barrier
@@ -140,7 +148,7 @@ def get_events(df_price,
 
     :return: (data frame) of events
             -events.index is event's starttime
-            -events['endt'] is event's endtime
+            -events['ent'] is event's endtime
             -events['trgt'] is event's target
             -events['side'] (optional) implies the algo's position side
             -events['pt'] Profit taking multiple
@@ -166,7 +174,7 @@ def get_events(df_price,
         pt_sl_ = pt_sl[:2]
 
     # Create a new df with [v_barrier, target, side] and drop rows that are NA in target
-    events = pd.concat({'endt': vertical_barrier_times, 'trgt': target, 'side': side_}, axis=1)
+    events = pd.concat({'ent': vertical_barrier_times, 'trgt': target, 'side': side_}, axis=1)
     events = events.dropna(subset=['side'])
     if nan_rt_keep:
         events = events.fillna(value={'trgt': min_ret})
@@ -176,11 +184,11 @@ def get_events(df_price,
     first_touch_dates = mp_pandas_obj(func=apply_pt_sl_on_ent,
                                       pd_obj=('molecule', events.index),
                                       num_threads=num_threads,
-                                      close=df_price,
+                                      df_price=df_price,
                                       events=events,
                                       pt_sl=pt_sl_)
 
-    events['endt'] = first_touch_dates.dropna(how='all').min(axis=1)  # pd.min ignores nan
+    events['ent'] = first_touch_dates.dropna(how='all').min(axis=1)  # pd.min ignores nan
 
     if side_prediction is None:
         events = events.drop('side', axis=1)
@@ -229,7 +237,7 @@ def barrier_touched(out_df, events):
     return out_df
 
 
-def get_bins(triple_barrier_events, close):
+def get_bins(triple_barrier_events, df_price):
     """
     Snippet 3.7, page 51, Labeling for Side & Size with Meta Labels
 
@@ -248,14 +256,14 @@ def get_bins(triple_barrier_events, close):
                 -events['side'] (optional) implies the algo's position side
                 Case 1: ('side' not in events): bin in (-1,1) <-label by price action
                 Case 2: ('side' in events): bin in (0,1) <-label by pnl (meta-labeling)
-    :param close: (series) close prices
+    :param df_price: (series) close prices
     :return: (data frame) of meta-labeled events
     """
 
     # 1) Align prices with their respective events
     events_ = triple_barrier_events.dropna(subset=['ent'])
     all_dates = events_.index.union(other=events_['ent'].values).drop_duplicates()
-    prices = close.reindex(all_dates, method='bfill')
+    prices = df_price.reindex(all_dates, method='bfill')
 
     # 2) Create out DataFrame
     out_df = pd.DataFrame(index=events_.index)
