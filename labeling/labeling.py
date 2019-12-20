@@ -10,7 +10,7 @@ from util.multiprocess import mp_pandas_obj
 
 
 # Snippet 3.2, page 45, Triple Barrier Labeling Method
-def apply_pt_sl_on_t1(close, events, pt_sl, molecule):  # pragma: no cover
+def apply_pt_sl_on_ent(close, events, pt_sl, molecule):
     """
     Snippet 3.2, page 45, Triple Barrier Labeling Method
 
@@ -21,7 +21,7 @@ def apply_pt_sl_on_t1(close, events, pt_sl, molecule):  # pragma: no cover
 
     :param
     1. close: A pandas series of prices
-    2. events: dataframe with two columns: t1: the timestamp of vertical barrier, when the value is np.nan, then no vertical bar
+    2. events: dataframe with two columns: ent: the timestamp of vertical barrier, when the value is np.nan, then no vertical bar
                                            trgt: the unit width of the horizontal barriers.
     3. pts1: pts1[0]*trgt is the
     4. molecule: a list with the subset of event indcies that will be processed by a single thread.
@@ -29,9 +29,9 @@ def apply_pt_sl_on_t1(close, events, pt_sl, molecule):  # pragma: no cover
     :param molecule: (an array) a set of datetime index values for processing
     :return: DataFrame of timestamps of when first barrier was touched
     """
-    # Apply stop loss/profit taking, if it takes place before t1 (end of event)
+    # Apply stop loss/profit taking, if it takes place before ent (end of event)
     events_ = events.loc[molecule]
-    out     = events_[['t1']].copy(deep=True)
+    out     = events_[['ent']].copy(deep=True)
 
     profit_taking_multiple = pt_sl[0]
     stop_loss_multiple     = pt_sl[1]
@@ -49,7 +49,7 @@ def apply_pt_sl_on_t1(close, events, pt_sl, molecule):  # pragma: no cover
         stop_loss = pd.Series(index=events.index)  # NaNs
 
     # Get events
-    for loc, vertical_barrier in events_['t1'].fillna(close.index[-1]).iteritems():
+    for loc, vertical_barrier in events_['ent'].fillna(close.index[-1]).iteritems():
         closing_prices = close[loc: vertical_barrier]  # Path prices for a given trade
         cum_returns = (closing_prices / close[loc] - 1) * events_.at[loc, 'side']  # Path returns
         out.loc[loc, 'sl'] = cum_returns[cum_returns < stop_loss[loc]].index.min()  # Earliest stop loss date
@@ -58,33 +58,41 @@ def apply_pt_sl_on_t1(close, events, pt_sl, molecule):  # pragma: no cover
 
 
 # Snippet 3.4 page 49, Adding a Vertical Barrier
-def add_vertical_barrier(t_events, close, num_days=0, num_hours=0, num_minutes=0, num_seconds=0):
+def add_vertical_barrier(df_price, t_events=None, num_days=0, num_hours=0, num_minutes=0, num_seconds=0):
     """
-    Snippet 3.4 page 49, Adding a Vertical Barrier
+    From AFML, Try to add a Vertical Barrier
 
     For each index in t_events, it finds the timestamp of the next price bar at or immediately after
-    a number of days num_days. This vertical barrier can be passed as an optional argument t1 in get_events.
+    a number of days num_days. This vertical barrier can be passed as an optional argument ent in get_events.
 
     This function creates a series that has all the timestamps of when the vertical barrier would be reached.
 
-    :param t_events: (series) series of events (symmetric CUSUM filter)
-    :param close: (series) close prices
-    :param num_days: (int) number of days to add for vertical barrier
-    :param num_hours: (int) number of hours to add for vertical barrier
-    :param num_minutes: (int) number of minutes to add for vertical barrier
-    :param num_seconds: (int) number of seconds to add for vertical barrier
-    :return: (series) timestamps of vertical barriers
+    :args
+    1. t_events: DatetimeIndex  Default to be the datetimeindex in the dataframe t
+    2. df_price: the price dataframe which has the columns
+        datetime as the index
+        another column is can be price
+    3. Time diff parameters:
+        num_days: (int) number of days to add for vertical barrier
+        num_hours: (int) number of hours to add for vertical barrier
+        num_minutes: (int) number of minutes to add for vertical barrier
+        num_seconds: (int) number of seconds to add for vertical barrier'
+
+    :return:
+    (series) timestamps of vertical barriers
     """
+    if t_events ==None:
+        t_events = df_price.index
     timedelta = pd.Timedelta(
         '{} days, {} hours, {} minutes, {} seconds'.format(num_days, num_hours, num_minutes, num_seconds))
     # Find index to closest to vertical barrier
-    nearest_index = close.index.searchsorted(t_events + timedelta)
+    nearest_index = df_price.index.searchsorted(t_events + timedelta)
 
     # Exclude indexes which are outside the range of close price index
-    nearest_index = nearest_index[nearest_index < close.shape[0]]
+    nearest_index = nearest_index[nearest_index < df_price.shape[0]]
 
     # Find price index closest to vertical barrier time stamp
-    nearest_timestamp = close.index[nearest_index]
+    nearest_timestamp = df_price.index[nearest_index]
     filtered_events = t_events[:nearest_index.shape[0]]
 
     vertical_barriers = pd.Series(data=nearest_timestamp, index=filtered_events)
@@ -92,38 +100,57 @@ def add_vertical_barrier(t_events, close, num_days=0, num_hours=0, num_minutes=0
 
 
 # Snippet 3.3 -> 3.6 page 50, Getting the Time of the First Touch, with Meta Labels
-def get_events(close, t_events, pt_sl, target, min_ret, num_threads, vertical_barrier_times=False,
-               side_prediction=None):
+def get_events(df_price,
+               target,
+               t_events=None,
+               pt_sl=[2,2],
+               min_ret = 0.0,
+               num_threads = 1,
+               vertical_barrier_times=False,
+               side_prediction=None,
+               nan_rt_keep=True):
     """
     Snippet 3.6 page 50, Getting the Time of the First Touch, with Meta Labels
 
     This function is orchestrator to meta-label the data, in conjunction with the Triple Barrier Method.
 
-    :param close: (series) Close prices
-    :param t_events: (series) of t_events. These are timestamps that will seed every triple barrier.
-        These are the timestamps selected by the sampling procedures discussed in Chapter 2, Section 2.5.
-        Eg: CUSUM Filter
-    :param pt_sl: (2 element array) element 0, indicates the profit taking level; element 1 is stop loss level.
-        A non-negative float that sets the width of the two barriers. A 0 value means that the respective
-        horizontal barrier (profit taking and/or stop loss) will be disabled.
-    :param target: (series) of values that are used (in conjunction with pt_sl) to determine the width
-        of the barrier. In this program this is daily volatility series.
-    :param min_ret: (float) The minimum target return required for running a triple barrier search.
-    :param num_threads: (int) The number of threads concurrently used by the function.
-    :param vertical_barrier_times: (series) A pandas series with the timestamps of the vertical barriers.
-        We pass a False when we want to disable vertical barriers.
-    :param side_prediction: (series) Side of the bet (long/short) as decided by the primary model
+    :args:
+        1. df_price: the price dataframe which has the columns
+        datetime as the index
+        another column is can be price
+        2. target: pd.series
+            values that are used (in conjunction with pt_sl) to determine the width
+            of the barrier. In this program this is daily volatility series.
+        3. t_events: pd.series
+            These are timestamps that will seed every triple barrier. Default to be the datetimeindex in the dataframe t
+        4. pt_sl: 2 element array (profit taking level, stop loss level)
+            A non-negative float that sets the width of the two barriers. A 0 value means that the respective
+            horizontal barrier (profit taking and/or stop loss) will be disabled.
+        5. min_ret: folat
+            The minimum target return required for running a triple barrier search.
+        6. num_threads: int
+        7. vertical_barrier_times: pd.series
+            A pandas series with the timestamps of the vertical barriers.
+            We pass a False when we want to disable vertical barriers.
+        8. side_prediction: (series)
+            Side of the bet (long/short) as decided by the primary model. Default is 1
+        9. nan_rt_keep: boolean value
+            If False, drop all bars that the variance is lower than the target bar
+            else: use the min_ret as the target return
+
     :return: (data frame) of events
             -events.index is event's starttime
-            -events['t1'] is event's endtime
+            -events['endt'] is event's endtime
             -events['trgt'] is event's target
             -events['side'] (optional) implies the algo's position side
             -events['pt'] Profit taking multiple
             -events['sl'] Stop loss multiple
     """
-
+    if t_events == None:
+        t_events = df_price.index
     # 1) Get target
-    target = target.loc[t_events]
+    target = target.reindex(t_events)
+    target.dropna() #in case the t_events doest not match target
     target = target[target > min_ret]  # min_ret
 
     # 2) Get vertical barrier (max holding period)
@@ -139,18 +166,21 @@ def get_events(close, t_events, pt_sl, target, min_ret, num_threads, vertical_ba
         pt_sl_ = pt_sl[:2]
 
     # Create a new df with [v_barrier, target, side] and drop rows that are NA in target
-    events = pd.concat({'t1': vertical_barrier_times, 'trgt': target, 'side': side_}, axis=1)
+    events = pd.concat({'endt': vertical_barrier_times, 'trgt': target, 'side': side_}, axis=1)
+    events = events.dropna(subset=['side'])
+    if nan_rt_keep:
+        events = events.fillna(value={'trgt': min_ret})
     events = events.dropna(subset=['trgt'])
 
-    # Apply Triple Barrier
-    first_touch_dates = mp_pandas_obj(func=apply_pt_sl_on_t1,
+    # Apply Triple Barrier It may be very slow
+    first_touch_dates = mp_pandas_obj(func=apply_pt_sl_on_ent,
                                       pd_obj=('molecule', events.index),
                                       num_threads=num_threads,
-                                      close=close,
+                                      close=df_price,
                                       events=events,
                                       pt_sl=pt_sl_)
 
-    events['t1'] = first_touch_dates.dropna(how='all').min(axis=1)  # pd.min ignores nan
+    events['endt'] = first_touch_dates.dropna(how='all').min(axis=1)  # pd.min ignores nan
 
     if side_prediction is None:
         events = events.drop('side', axis=1)
@@ -199,7 +229,6 @@ def barrier_touched(out_df, events):
     return out_df
 
 
-# Snippet 3.4 -> 3.7, page 51, Labeling for Side & Size with Meta Labels
 def get_bins(triple_barrier_events, close):
     """
     Snippet 3.7, page 51, Labeling for Side & Size with Meta Labels
@@ -214,7 +243,7 @@ def get_bins(triple_barrier_events, close):
 
     :param triple_barrier_events: (data frame)
                 -events.index is event's starttime
-                -events['t1'] is event's endtime
+                -events['ent'] is event's endtime
                 -events['trgt'] is event's target
                 -events['side'] (optional) implies the algo's position side
                 Case 1: ('side' not in events): bin in (-1,1) <-label by price action
@@ -224,14 +253,14 @@ def get_bins(triple_barrier_events, close):
     """
 
     # 1) Align prices with their respective events
-    events_ = triple_barrier_events.dropna(subset=['t1'])
-    all_dates = events_.index.union(other=events_['t1'].values).drop_duplicates()
+    events_ = triple_barrier_events.dropna(subset=['ent'])
+    all_dates = events_.index.union(other=events_['ent'].values).drop_duplicates()
     prices = close.reindex(all_dates, method='bfill')
 
     # 2) Create out DataFrame
     out_df = pd.DataFrame(index=events_.index)
     # Need to take the log returns, else your results will be skewed for short positions
-    out_df['ret'] = np.log(prices.loc[events_['t1'].values].values) - np.log(prices.loc[events_.index])
+    out_df['ret'] = np.log(prices.loc[events_['ent'].values].values) - np.log(prices.loc[events_.index])
     out_df['trgt'] = events_['trgt']
 
     # Meta labeling: Events that were correct will have pos returns
