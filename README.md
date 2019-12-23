@@ -5,10 +5,9 @@ Some code sinppet for quant trading with a foucs on machine learning application
 
 2. Git repo: [mlfinlab](https://github.com/hudson-and-thames/mlfinlab) project
 
+3. Basic dataformat: the input data format is a pandas dataframe with the datetime index. And it should be ordered by the time. At the same time, it has ohlcv format.
 
-1. Basic dataformat: the input data format is a pandas dataframe with the datetime index. And it should be ordered by the time. At the same time, it has ohlcv format.
-
-2. The folder ```TestingNotebooks``` have all the ipython notebooks that contain the testing logics:
+4. The folder ```TestingNotebooks``` have all the ipython notebooks that contain the testing logics:
     * utils functions
     * info-driven bar
     * Probabilistic of backtesting overfitting

@@ -89,7 +89,8 @@ def add_vertical_barrier(df_price, t_events=None, num_days=0, num_hours=0, num_m
     :return:
     (series) timestamps of vertical barriers
     """
-    if t_events ==None:
+    print(t_events)
+    if t_events is None:
         t_events = df_price.index
     timedelta = pd.Timedelta(
         '{} days, {} hours, {} minutes, {} seconds'.format(num_days, num_hours, num_minutes, num_seconds))
@@ -248,16 +249,21 @@ def get_bins(triple_barrier_events, df_price):
     a purely binary prediction. When the predicted label the previous feasible values {−1,0,1}.
     The ML algorithm will be trained to decide is 1, we can use the probability of this secondary prediction
     to derive the size of the bet, where the side (sign) of the position has been set by the primary model.
+    : args
+    1.  triple_barrier_events: pd.dataframe
+        index is datetime type, which is the events' starttime
+        have following cols:
+            - ent: endtime of the events i.e., the barrier touch time
+            - trgt: event's target return
+            - side(optional): implies the algo's position side
+            - pt: int, the level of profit taking
+            - sl: int, the level of loss stoping
+            case 1: (side not in the events), assign (-1, 1) to label by price action
+            case 2:  side in the events, assign (0, 1) to label by pnl (meta-labeling)
+    2   df_price: pd.series close prices
 
-    :param triple_barrier_events: (data frame)
-                -events.index is event's starttime
-                -events['ent'] is event's endtime
-                -events['trgt'] is event's target
-                -events['side'] (optional) implies the algo's position side
-                Case 1: ('side' not in events): bin in (-1,1) <-label by price action
-                Case 2: ('side' in events): bin in (0,1) <-label by pnl (meta-labeling)
-    :param df_price: (series) close prices
-    :return: (data frame) of meta-labeled events
+    : return pd.df
+        it store the meta-labeled events, it has the
     """
 
     # 1) Align prices with their respective events
@@ -289,7 +295,6 @@ def get_bins(triple_barrier_events, df_price):
     tb_cols = triple_barrier_events.columns
     if 'side' in tb_cols:
         out_df['side'] = triple_barrier_events['side']
-
     return out_df
 
 # Snippet 3.8 page 54
