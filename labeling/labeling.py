@@ -9,7 +9,7 @@ import pandas as pd
 from util.multiprocess import mp_pandas_obj
 
 
-# Apply stop loss/profit taking, if it takes place before ent (end of event)
+
 def apply_pt_sl_on_ent(df_price, events, pt_sl, molecule):
     """
     From AFML
@@ -32,10 +32,10 @@ def apply_pt_sl_on_ent(df_price, events, pt_sl, molecule):
 
     :return:
     pd.df
-    datetime as index.
+    datetime as index, as the start time
     three cols: 1 ent: the vert bar time
-                2 sl:  the time that touch the bottom line
-                3 pt:  the time that touch the up line
+                2 sl:  the time that touch the bottom line (nan means no touch)
+                3 pt:  the time that touch the up line (nan means no touch)
     """
 
     events_ = events.loc[molecule]
@@ -89,7 +89,6 @@ def add_vertical_barrier(df_price, t_events=None, num_days=0, num_hours=0, num_m
     :return:
     (series) timestamps of vertical barriers
     """
-    print(t_events)
     if t_events is None:
         t_events = df_price.index
     timedelta = pd.Timedelta(
@@ -112,7 +111,7 @@ def add_vertical_barrier(df_price, t_events=None, num_days=0, num_hours=0, num_m
 def get_events(df_price,
                target,
                t_events=None,
-               pt_sl=[2,2],
+               pt_sl=[1,1],
                min_ret = 0.0,
                num_threads = 1,
                vertical_barrier_times=False,
@@ -149,13 +148,13 @@ def get_events(df_price,
 
     :return: (data frame) of events
             -events.index is event's starttime
-            -events['ent'] is event's endtime
+            -events['ent'] is event's endtime, i.e., the earliest time of up bar touch, low bar touch and the vertical touch
             -events['trgt'] is event's target
             -events['side'] (optional) implies the algo's position side
             -events['pt'] Profit taking multiple
             -events['sl'] Stop loss multiple
     """
-    if t_events == None:
+    if t_events is None:
         t_events = df_price.index
     # 1) Get target
     target = target.reindex(t_events)
@@ -240,15 +239,16 @@ def barrier_touched(out_df, events):
 
 def get_bins(triple_barrier_events, df_price):
     """
-    Snippet 3.7, page 51, Labeling for Side & Size with Meta Labels
+    From AFML
 
     Compute event's outcome (including side information, if provided).
     events is a DataFrame where:
 
-    Now the possible values for labels in out['bin'] are {0,1}, as opposed to whether to take the bet or pass,
-    a purely binary prediction. When the predicted label the previous feasible values {−1,0,1}.
-    The ML algorithm will be trained to decide is 1, we can use the probability of this secondary prediction
+    If there is no side col in triple_barrier_events, the bin will be {-1, 0, 1}.
+    If there is side col, the bin will be {0,1}, as opposed to whether to take the bet or pass, which is the purely binary prediction.
+    In addition, the ML algorithm will be trained to decide is 1, we can use the probability of this secondary prediction
     to derive the size of the bet, where the side (sign) of the position has been set by the primary model.
+
     : args
     1.  triple_barrier_events: pd.dataframe
         index is datetime type, which is the events' starttime
@@ -263,7 +263,11 @@ def get_bins(triple_barrier_events, df_price):
     2   df_price: pd.series close prices
 
     : return pd.df
-        it store the meta-labeled events, it has the
+        it store the meta-labeled events, dataframe with datetime as the index
+        it has three cols:
+             - ret: the achieved return
+             - target: the targeted return
+             - bin: two cases: one is [-1,0,1] and the ohter is [0,1]
     """
 
     # 1) Align prices with their respective events
@@ -297,10 +301,9 @@ def get_bins(triple_barrier_events, df_price):
         out_df['side'] = triple_barrier_events['side']
     return out_df
 
-# Snippet 3.8 page 54
 def drop_labels(events, min_pct=.05):
     """
-    Snippet 3.8 page 54
+    From AFML
 
     This function recursively eliminates rare observations.
 
