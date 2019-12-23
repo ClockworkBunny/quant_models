@@ -1,14 +1,11 @@
 """
-Logic regarding labeling from chapter 3. In particular the Triple Barrier Method and Meta-Labeling.
+The implementation for the Triple Barrier Method and Meta-Labeling.
+The codes are modified from AFML code sinppets.
 """
 
 import numpy as np
 import pandas as pd
-
-# Snippet 3.1, page 44, Daily Volatility Estimates
 from util.multiprocess import mp_pandas_obj
-
-
 
 def apply_pt_sl_on_ent(df_price, events, pt_sl, molecule):
     """
@@ -37,7 +34,6 @@ def apply_pt_sl_on_ent(df_price, events, pt_sl, molecule):
                 2 sl:  the time that touch the bottom line (nan means no touch)
                 3 pt:  the time that touch the up line (nan means no touch)
     """
-
     events_ = events.loc[molecule]
     out     = events_[['ent']].copy(deep=True)
 
@@ -107,7 +103,7 @@ def add_vertical_barrier(df_price, t_events=None, num_days=0, num_hours=0, num_m
     return vertical_barriers
 
 
-# Snippet 3.3 -> 3.6 page 50, Getting the Time of the First Touch, with Meta Labels
+
 def get_events(df_price,
                target,
                t_events=None,
@@ -118,7 +114,7 @@ def get_events(df_price,
                side_prediction=None,
                nan_rt_keep=True):
     """
-    Snippet 3.6 page 50, Getting the Time of the First Touch, with Meta Labels
+    From AFML
 
     This function is orchestrator to meta-label the data, in conjunction with the Triple Barrier Method.
 
@@ -199,20 +195,28 @@ def get_events(df_price,
 
     return events
 
-
-# Snippet 3.9, pg 55, Question 3.3
 def barrier_touched(out_df, events):
     """
-    Snippet 3.9, pg 55, Question 3.3
+    From AFML,
     Adjust the getBins function (Snippet 3.7) to return a 0 whenever the vertical barrier is the one touched first.
 
     Top horizontal barrier: 1
     Bottom horizontal barrier: -1
     Vertical barrier: 0
 
-    :param out_df: (DataFrame) containing the returns and target
-    :param events: (DataFrame) The original events data frame. Contains the pt sl multiples needed here.
-    :return: (DataFrame) containing returns, target, and labels
+    : args
+        1. out_df: pandas df
+          the index is the datetime index
+          it has two cols:
+            - ret: the acheived return
+            - trgt: the target return
+        2. events: pandas df
+            the index is the datetime index, which is the original events dataframe
+    : return
+        pd.df, it contain three cols:
+            - bin: the generated labels
+            - ret
+            - target
     """
     store = []
     for date_time, values in out_df.iterrows():
@@ -307,16 +311,23 @@ def drop_labels(events, min_pct=.05):
 
     This function recursively eliminates rare observations.
 
-    :param events: (data frame) events
-    :param min_pct: (float) a fraction used to decide if the observation occurs less than
-    that fraction
-    :return: (data frame) of events
-    print the data from the simulated results
+    : args:
+        - events: pd.dataframe
+                  the output from get_bins function
+        - min_pct: float number
+                   the fraction used to decide if the observation occurs less than that fraction
+    : return:
+        - data frame of events, dataframe with datetime as the index
+        it has three cols:
+             - ret: the achieved return
+             - target: the targeted return
+             - bin: two cases: one is [-1,0,1] and the ohter is [0,1]
+    in addition, the program will print the data from the simulated results
     """
     # Apply weights, drop labels with insufficient examples
+
     while True:
         df0 = events['bin'].value_counts(normalize=True)
-
         if df0.min() > min_pct or df0.shape[0] < 3:
             break
         print('dropped label: ', df0.argmin(), df0.min())
