@@ -26,6 +26,9 @@ How to quantify the probabilitiy of a group of trading strategies that may be ov
 
 #### Triple-bar Labeling
 
+![diagram](imgs//triplebar.png)
+
+It supports the label bar.
 
 #### Utils Module
 Supported features:
