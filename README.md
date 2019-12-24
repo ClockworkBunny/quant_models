@@ -34,10 +34,21 @@ The idea behind the triple-bar labeling lies that it consider the path of the pr
 ![diagram](imgs//triplebar.png)
 
 1. Label method:
-    - touch the upper line firstly, assign 1
-    - touch the bottom line firstly, assign -1
+    - touch the upper line    firstly, assign 1
+    - touch the bottom line   firstly, assign -1
     - touch the vertical line firstly, assign 0
 2. Meta Label method:
+
+    This one is a meta-label method., which you can think it is a level-2 label. The first level algo may be aother trading rule. Then, the starting time is that each trade is initated.
+
+    - If the trade is long,
+        - Touch the upper line, assign 1
+        - Else, assign 0
+    - If the trade is short,
+        - Touch the bottom line, assign 1
+        - Else, assgin 0
+
+    The advantage of meta-label method is the automatic bet sizing capabilities. If you apply some ml algos with prob. output on the above binary classification problem(0 vs 1), the prob can be the sizing output.
 
 ## Part 4 Utils Module
 
