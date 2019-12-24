@@ -5,15 +5,15 @@ Some code sinppet for quant trading with a foucs on machine learning application
 
 2. Git repo: [mlfinlab](https://github.com/hudson-and-thames/mlfinlab) project
 
-3. Basic dataformat: the input data format is a pandas dataframe with the datetime index. And it should be ordered by the time. At the same time, it has ohlcv format.
+**Basic dataformat**: the input data format is a pandas dataframe with the datetime index. And it should be ordered by the time. At the same time, it has ohlcv format.
 
-4. The folder ```TestingNotebooks``` have all the ipython notebooks that contain the testing logics:
+**Demo Notebooks**: The folder ```TestingNotebooks``` have all the ipython notebooks that contain the testing logics:
     * utils functions
     * info-driven bar
     * Probabilistic of backtesting overfitting
     * Testing Sharpe
 
-#### CustomBar Projects
+#### Part 1 CustomBar Projects
 Sample financial data to create alternative bar data. Conventional bars sampled by time interval may have the following drawbacks:
 
 1. oversample information during low-activity periods and undersample information during high-activity periods
@@ -21,20 +21,24 @@ Sample financial data to create alternative bar data. Conventional bars sampled 
 
 Therefore, some information-driven bars are proposed. The intuitive idea is that we are going to look at other information such as volume, price instead of the time axis.
 
-#### Probability of Backtest Overfitting
+#### Part 2 Probability of Backtest Overfitting
 How to quantify the probabilitiy of a group of trading strategies that may be overfitted. This project is modified from the [repo](https://github.com/esvhd/pypbo)
 
-#### Triple-bar Labeling
+#### Part 3 Triple-bar Labeling
 The idea behind the triple-bar labeling lies that it consider the path of the price change, while the traditional treshold-cut method ignore it. There are three key lines: One the is the upper bond which is regarded as protfit taking line, another is the bottom bond which is regarded as stop loss line, the rest is the vertical one as the maximum holding period.
-
-1. Label method: 
-    - touch the upper line firstly, assign 1
 
 ![diagram](imgs//triplebar.png)
 
+1. Label method:
+    - touch the upper line firstly, assign 1
+    - touch the bottom line firstly, assign -1
+    - touch the vertical line firstly, assign 0
+2. Meta Lael
+
+
 It supports the label bar.
 
-#### Utils Module
+#### Part 4 Utils Module
 Supported features:
 
 1. Utils
