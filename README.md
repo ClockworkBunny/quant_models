@@ -25,6 +25,10 @@ Therefore, some information-driven bars are proposed. The intuitive idea is that
 How to quantify the probabilitiy of a group of trading strategies that may be overfitted. This project is modified from the [repo](https://github.com/esvhd/pypbo)
 
 #### Triple-bar Labeling
+The idea behind the triple-bar labeling lies that it consider the path of the price change, while the traditional treshold-cut method ignore it. There are three key lines: One the is the upper bond which is regarded as protfit taking line, another is the bottom bond which is regarded as stop loss line, the rest is the vertical one as the maximum holding period.
+
+1. Label method: 
+    - touch the upper line firstly, assign 1
 
 ![diagram](imgs//triplebar.png)
 
