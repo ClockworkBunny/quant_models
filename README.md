@@ -1,4 +1,5 @@
 # Projects for Quant
+
 Some code sinppet for quant trading with a foucs on machine learning applications. This project is referred to the following resources:
 
 1. The book: [advances in financial machine learning](https://www.amazon.com/Advances-Financial-Machine-Learning-Marcos/dp/1119482089)
@@ -13,7 +14,8 @@ Some code sinppet for quant trading with a foucs on machine learning application
     * Probabilistic of backtesting overfitting
     * Testing Sharpe
 
-#### Part 1 CustomBar Projects
+## Part 1 CustomBar Projects
+
 Sample financial data to create alternative bar data. Conventional bars sampled by time interval may have the following drawbacks:
 
 1. oversample information during low-activity periods and undersample information during high-activity periods
@@ -21,10 +23,12 @@ Sample financial data to create alternative bar data. Conventional bars sampled 
 
 Therefore, some information-driven bars are proposed. The intuitive idea is that we are going to look at other information such as volume, price instead of the time axis.
 
-#### Part 2 Probability of Backtest Overfitting
+## Part 2 Probability of Backtest Overfitting
+
 How to quantify the probabilitiy of a group of trading strategies that may be overfitted. This project is modified from the [repo](https://github.com/esvhd/pypbo)
 
-#### Part 3 Triple-bar Labeling
+## Part 3 Triple-bar Labeling
+
 The idea behind the triple-bar labeling lies that it consider the path of the price change, while the traditional treshold-cut method ignore it. There are three key lines: One the is the upper bond which is regarded as protfit taking line, another is the bottom bond which is regarded as stop loss line, the rest is the vertical one as the maximum holding period.
 
 ![diagram](imgs//triplebar.png)
@@ -33,18 +37,16 @@ The idea behind the triple-bar labeling lies that it consider the path of the pr
     - touch the upper line firstly, assign 1
     - touch the bottom line firstly, assign -1
     - touch the vertical line firstly, assign 0
-2. Meta Lael
+2. Meta Label method:
 
+## Part 4 Utils Module
 
-It supports the label bar.
-
-#### Part 4 Utils Module
-Supported features:
+**Supported features**:
 
 1. Utils
-    * sample the bar data based on the time index
-    * change the timezone of the time index
-    * Compute daily vol. given input bar
+    - sample the bar data based on the time index
+    - change the timezone of the time index
+    - Compute daily vol. given input bar
 
 2. fast_ewma
 
@@ -53,9 +55,9 @@ Supported features:
 3. metrics
 
     contain lists of metrics that evaluates the trading performance
-    * Adjusted Sharpe
-    * Non-IID Sharpe
-    * Deflated Sharpe Ratio
+    - Adjusted Sharpe
+    - Non-IID Sharpe
+    - Deflated Sharpe Ratio
 
 4. multiprocess
 
