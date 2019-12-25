@@ -60,7 +60,6 @@ def getRecBipart(cov, sortIx):
             w[cItems1] *= 1 - alpha  # weight 2
     return w
 
-
 def correlDist(corr):
     # A distance matrix based on correlation, where 0<=d[i,j]<=1
     # This is a proper distance metric

@@ -52,7 +52,7 @@ The idea behind the triple-bar labeling lies that it consider the path of the pr
 
 ## Part 4 Potfolio Optimization
 
-some methods to allocate assets/strategies
+Some methods to allocate assets/strategies. It will contain machine learning and traditional optimziation methods.
 
 ## Part 5 Utils Module
 
