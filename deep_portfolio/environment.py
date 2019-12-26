@@ -5,10 +5,9 @@ from utils import portfolio
 
 
 class CryptoEnvironment:
-    
     def __init__(self, prices = './data/CNA_portfolio_v1.csv', capital = 1e6):       
-        self.prices = prices  
-        self.capital = capital  
+        self.prices = prices
+        self.capital = capital
         self.data = self.load_data()
 
     def load_data(self):
@@ -20,7 +19,7 @@ class CryptoEnvironment:
             data.index = data['date']
             data = data.drop(columns = ['date'])            
         return data
-    
+
     def preprocess_state(self, state):
         return state
     
