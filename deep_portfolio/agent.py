@@ -2,7 +2,6 @@ import scipy.optimize as sco
 from sklearn.decomposition import PCA
 import pandas as pd
 import numpy as np
-
 from keras.layers import Input, Dense
 from keras.models import Model
 from keras import regularizers
@@ -10,7 +9,6 @@ from keras.models import load_model
 
 from statsmodels.tsa.api import ExponentialSmoothing, SimpleExpSmoothing, Holt
 from utils import portfolio
-
 from hrp_routines import *
 
 class HRPAgent:
@@ -20,7 +18,6 @@ class HRPAgent:
                      portfolio_size,
                      allow_short = True,
                  ):
-        
         self.portfolio_size = portfolio_size
         self.allow_short = allow_short
         self.input_shape = (portfolio_size, portfolio_size, )

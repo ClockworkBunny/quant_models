@@ -52,7 +52,14 @@ The idea behind the triple-bar labeling lies that it consider the path of the pr
 
 ## Part 4 Potfolio Optimization
 
-Some methods to allocate assets/strategies. It will contain machine learning and traditional optimziation methods.
+This part is based on the [deep-portfolio-management](https://github.com/Rachnog/Deep-Portfolio-Management). It contains several approaches such as:
+
+1. classic optimization
+2. PCA portfolios
+3. Autoencoder
+4. Hierarchical Risk Parity
+5. Foreacsting-based Portfolios
+6. Reinforcement Learning Approaches
 
 ## Part 5 Utils Module
 

@@ -22,7 +22,7 @@ class CryptoEnvironment:
 
     def preprocess_state(self, state):
         return state
-    
+
     def get_state(self, t, lookback, is_cov_matrix = True, is_raw_time_series = False):
         
         assert lookback <= t

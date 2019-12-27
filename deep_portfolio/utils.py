@@ -5,25 +5,23 @@ import statsmodels.api as sm
 from statsmodels import regression
 
 import matplotlib
-import os 
+import os
 
 import matplotlib.pylab as plt
 
 current_cmap = matplotlib.cm.get_cmap()
 current_cmap.set_bad(color='red')
 
-def plot_results(benchmark_series, 
-                 target_series, 
-                 target_balances, 
+def plot_results(benchmark_series,
+                 target_series,
+                 target_balances,
                  n_assets,
                  columns,
                  name2plot = '',
                  path2save = './',
                  base_name_series = 'series'):
-    
-#     N = len(np.array(benchmark_series).cumsum())
+
     N = len(np.array([item for sublist in benchmark_series for item in sublist]).cumsum()) 
-    
     if not os.path.exists(path2save):
         os.makedirs(path2save)
 
@@ -43,7 +41,6 @@ def plot_results(benchmark_series,
         current_ts2[current_ts2 == 0] = ts_target[-1]
 
         plt.figure(figsize = (12, 10))
-        
         plt.subplot(2, 1, 1)
         plt.bar(np.arange(n_assets), target_balances[i], color = 'grey')
         plt.xticks(np.arange(n_assets), columns, rotation='vertical')
@@ -86,12 +83,10 @@ def print_stats(result, benchmark):
     sharpe_ratio = sharpe(np.array(result).cumsum())
     returns = np.mean(np.array(result))
     volatility = np.std(np.array(result))
-    
     X = benchmark
     y = result
     x = sm.add_constant(X)
-    model = regression.linear_model.OLS(y, x).fit()    
+    model = regression.linear_model.OLS(y, x).fit()
     alpha = model.params[0]
     beta = model.params[1]
-    
     return np.round(np.array([returns, volatility, sharpe_ratio, alpha, beta]), 4).tolist()

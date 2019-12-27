@@ -10,7 +10,6 @@ import pylab
 # On 20151227 by MLdP <lopezdeprado@lbl.gov>
 # Hierarchical Risk Parity
 
-
 def getIVP(cov, **kargs):
     # Compute the inverse-variance portfolio
     ivp = 1. / np.diag(cov)
@@ -77,5 +76,3 @@ def getHRP(cov, corr):
     sortIx = corr.index[sortIx].tolist()
     hrp = getRecBipart(cov, sortIx)
     return hrp.sort_index()
-
-# compute the data
