@@ -12,23 +12,23 @@ import pylab
 
 def getIVP(cov, **kargs):
     # Compute the inverse-variance portfolio
-    ivp = 1. / np.diag(cov)
+    ivp  = 1. / np.diag(cov)
     ivp /= ivp.sum()
     return ivp
 
 
 def getClusterVar(cov,cItems):
     # Compute variance per cluster
-    cov_=cov.loc[cItems,cItems] # matrix slice
-    w_=getIVP(cov_).reshape(-1,1)
-    cvar=np.dot(np.dot(w_.T,cov_),w_)[0,0]
-    return cvar
+    cov_ = cov.loc[cItems,cItems] # matrix slice
+    w_   = getIVP(cov_).reshape(-1,1)
+    cvar = np.dot(np.dot(w_.T,cov_),w_)
+    return cvar[0, 0]
 
 
 def getQuasiDiag(link):
     # Sort clustered items by distance
-    link = link.astype(int)
-    sortIx = pd.Series([link[-1, 0], link[-1, 1]])
+    link     = link.astype(int)
+    sortIx   = pd.Series([link[-1, 0], link[-1, 1]])
     numItems = link[-1, 3]  # number of original items
     while sortIx.max() >= numItems:
         sortIx.index = range(0, sortIx.shape[0] * 2, 2)  # make space
@@ -44,7 +44,7 @@ def getQuasiDiag(link):
 
 
 def getRecBipart(cov, sortIx):
-    # Compute HRP alloc
+    #Compute HRP alloc
     w = pd.Series(1, index=sortIx)
     cItems = [sortIx]  # initialize all items in one cluster
     while len(cItems) > 0:

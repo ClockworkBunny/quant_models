@@ -8,8 +8,8 @@ from keras import regularizers
 from keras.models import load_model
 
 from statsmodels.tsa.api import ExponentialSmoothing, SimpleExpSmoothing, Holt
-from utils import portfolio_create
-from hrp_routines import *
+from .helper import portfolio_create
+from ._hrpfuncs import *
 
 class HRPOpt:
 
@@ -137,7 +137,7 @@ class PCAOpt:
     def act(self, returns):
         C = self.pc_max
         pca = PCA(C)
-        returns_pca = pca.fit_transform(returns)
+        _ = pca.fit_transform(returns)
         pcs = pca.components_
 
         pc1 = pcs[self.pc_id, :]
