@@ -31,6 +31,9 @@ class EquityEnvironment:
         4. is_fit:
         true indicates the input df is for weights computation, which do not allow for all zero returns i.e. whole columne
         else indicates means no filter
+
+        # return:
+        return the sub sections of the return series
         """
         assert lookback <= t
         decision_making_state = self.data.iloc[t-lookback:t]
