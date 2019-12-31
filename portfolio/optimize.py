@@ -47,18 +47,20 @@ class AutoencoderOpt:
         self.allow_short = allow_short
         self.encoding_dim = encoding_dim
 
-    def model(self):
-        input_img = Input(shape=(self.portfolio_size, ))
+    def model(self, input_size = None):
+        if input_size is None:
+            input_size = self.portfolio_size
+        input_img = Input(shape=(input_size, ))
         encoded = Dense(self.encoding_dim, activation='relu', kernel_regularizer=regularizers.l2(1e-6))(input_img)
-        decoded = Dense(self.portfolio_size, activation= 'linear', kernel_regularizer=regularizers.l2(1e-6))(encoded)
+        decoded = Dense(input_size, activation= 'linear', kernel_regularizer=regularizers.l2(1e-6))(encoded)
         autoencoder = Model(input_img, decoded)
         autoencoder.compile(optimizer='adam', loss='mse')
         return autoencoder
 
 
-    def act(self, returns):
+    def act(self, returns, input_size = None):
         data = returns
-        autoencoder = self.model()
+        autoencoder = self.model(input_size)
         autoencoder.fit(data, data, shuffle=False, epochs=25, batch_size=32, verbose=False)
         reconstruct = autoencoder.predict(data)
 
