@@ -8,3 +8,4 @@ from .optimize import MaxReturnsOpt
 from .optimize import MinVarianceOpt
 from .optimize import MaxSharpeOpt
 from .optimize import MaxDecorrelationOpt
+from .environment import EquityEnvironment

@@ -8,7 +8,7 @@ from keras import regularizers
 from keras.models import load_model
 
 from statsmodels.tsa.api import ExponentialSmoothing, SimpleExpSmoothing, Holt
-from .helper import portfolio_create
+from ._helper import portfolio_create
 from ._hrpfuncs import *
 
 class HRPOpt:
