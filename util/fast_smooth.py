@@ -10,6 +10,7 @@ from numba import int64
 import pywt
 from statsmodels.robust import mad
 
+
 def waveletSmooth(x, wavelet='db4', level=1, title=None):
     """
     wavelet smooth function
@@ -24,8 +25,8 @@ def waveletSmooth(x, wavelet='db4', level=1, title=None):
     y =  pywt.waverec( coeff, wavelet, mode='per')
     return y
 
-@jit((float64[:], int64), nopython=False, nogil=True)
-def smooth(arr_in, func, window):
+@jit(nopython=False, nogil=True)
+def smooth(arr_in, window, func=waveletSmooth):
     """
     Exponentialy weighted moving average specified by a decay ``window`` to provide better adjustments for
     small windows via:
@@ -43,5 +44,27 @@ def smooth(arr_in, func, window):
     filter_singal = np.copy(arr_in)
 
     for i in range(window-1, arr_length):
-        filter_singal[i] = func(x[i-windows_len+1: i+1])[-1]
+        filter_singal[i] = func(arr_in[i-window+1: i+1])[-1]
+    return filter_singal
+
+
+def smooth_normal(arr_in, window, func=waveletSmooth):
+    """
+    Exponentialy weighted moving average specified by a decay ``window`` to provide better adjustments for
+    small windows via:
+        y[t] = (x[t] + (1-a)*x[t-1] + (1-a)^2*x[t-2] + ... + (1-a)^n*x[t-n]) /
+               (1 + (1-a) + (1-a)^2 + ... + (1-a)^n).
+
+    :args
+    1. arr_in: (np.ndarray), (float64) A single dimensional numpy array
+    2. window: (int64) The decay window, or 'span'
+
+    :return
+    (np.ndarray) The EWMA vector, same length / shape as ``arr_in``
+    """
+    arr_length = arr_in.shape[0]
+    filter_singal = np.copy(arr_in)
+
+    for i in range(window-1, arr_length):
+        filter_singal[i] = func(arr_in[i-window+1: i+1])[-1]
     return filter_singal
