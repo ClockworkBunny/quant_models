@@ -25,9 +25,9 @@ tplines = [5, 30, 50, 70]
 """
 Volume Indicator
 """
-# On balance Volume
+# On balance Volume *
 obv = TAFactor("OBV")
-# Chaikin A/D Osciallator
+# Chaikin A/D Osciallator *
 adosc = TAFactor("ADOSC", kwparams={
     'fastperiod': [5, 30],
     'slowperiod': [20, 60]})
@@ -36,34 +36,35 @@ adosc = TAFactor("ADOSC", kwparams={
 """
 Monmentum Indicator
 """
-# Absolute Price Oscillator
+# Absolute Price Oscillator  * Different between fast and slow
 apo = TAFactor("APO", kwparams={
                          'fastperiod': [5, 30, 50],
                          'slowperiod': [10, 60, 100]})
-# Ultimate Oscillator
+# Ultimate Oscillator range from 0 to 100
 ultosc = TAFactor("ULTOSC", kwparams={
                                'timeperiod1': [10, 30],
                                'timeperiod2': [30, 60],
                                'timeperiod3': [60, 100]})
-# Aroon
+
+# Aroon   * return two lines so that the return can be used to
 aroon    = TAFactor("AROON", kwparams={'timeperiod': tplines})
-# Chande Momentum Oscillator
+# Chande Momentum Oscillator range from -100 to 100
 cmo      = TAFactor("CMO", kwparams={'timeperiod': tplines})
-# Directional Movement Index
+# Directional Movement Index range from 0 to 100
 dx       = TAFactor("DX", kwparams={'timeperiod': tplines})
-# Money Flow Index
+# Money Flow Index range from 0 to 100
 mfi      = TAFactor("MFI", kwparams={'timeperiod': tplines})
-# Minus Directional Indicator
+# Minus Directional Indicator range from 0 to 100
 di_minus = TAFactor("MINUS_DI", kwparams={
                        'timeperiod': tplines})
-# Plus Directional Indicator
+# Plus Directional Indicator range from 0 to 100
 di_plus  = TAFactor("PLUS_DI", kwparams={
                       'timeperiod': tplines})
-# Rate of Change
+# Rate of Change range from -1 to 1
 roc      = TAFactor("ROC", kwparams={'timeperiod': tplines})
-# 1 day rate-of-change of a triple smooth EMA
+# 1 day rate-of-change of a triple smooth EMA range from -1 to 1
 trix     = TAFactor("TRIX", kwparams={'timeperiod': tplines})
-# COMMODITY Channel Index
+# COMMODITY Channel Index * there is a range for the
 cci      = TAFactor("CCI", kwparams={
                                   'timeperiod': tplines})
 # Relative Strength Index
