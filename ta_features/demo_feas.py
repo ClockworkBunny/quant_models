@@ -4,7 +4,7 @@ TA Indicator Extraction
 Author: Zhao Rui, Quant Research, Harveston
 ===========================================================
 """
-import ta_features.feature_generator as fg
+from ._ta_factors import TAFactor
 import pandas as pd
 import datetime
 import numpy as np
@@ -22,127 +22,127 @@ ultosc = fg.TAFactor("ULTOSC", kwparams={
 """
 tplines = [5, 30, 50, 70]
 
-
-
-
-
 """
 Volume Indicator
 """
 # On balance Volume
-obv = fg.TAFactor("OBV")
+obv = TAFactor("OBV")
 # Chaikin A/D Osciallator
-adosc = fg.TAFactor("ADOSC", kwparams={
+adosc = TAFactor("ADOSC", kwparams={
     'fastperiod': [5, 30],
     'slowperiod': [20, 60]})
 ######Volume Indicator End######
+
 """
 Monmentum Indicator
 """
 # Absolute Price Oscillator
-apo = fg.TAFactor("APO", kwparams={
+apo = TAFactor("APO", kwparams={
                          'fastperiod': [5, 30, 50],
                          'slowperiod': [10, 60, 100]})
 # Ultimate Oscillator
-ultosc = fg.TAFactor("ULTOSC", kwparams={
+ultosc = TAFactor("ULTOSC", kwparams={
                                'timeperiod1': [10, 30],
                                'timeperiod2': [30, 60],
                                'timeperiod3': [60, 100]})
 # Aroon
-aroon    = fg.TAFactor("AROON", kwparams={'timeperiod': tplines})
+aroon    = TAFactor("AROON", kwparams={'timeperiod': tplines})
 # Chande Momentum Oscillator
-cmo      = fg.TAFactor("CMO", kwparams={'timeperiod': tplines})
+cmo      = TAFactor("CMO", kwparams={'timeperiod': tplines})
 # Directional Movement Index
-dx       = fg.TAFactor("DX", kwparams={'timeperiod': tplines})
+dx       = TAFactor("DX", kwparams={'timeperiod': tplines})
 # Money Flow Index
-mfi      = fg.TAFactor("MFI", kwparams={'timeperiod': tplines})
+mfi      = TAFactor("MFI", kwparams={'timeperiod': tplines})
 # Minus Directional Indicator
-di_minus = fg.TAFactor("MINUS_DI", kwparams={
+di_minus = TAFactor("MINUS_DI", kwparams={
                        'timeperiod': tplines})
 # Plus Directional Indicator
-di_plus  = fg.TAFactor("PLUS_DI", kwparams={
+di_plus  = TAFactor("PLUS_DI", kwparams={
                       'timeperiod': tplines})
 # Rate of Change
-roc      = fg.TAFactor("ROC", kwparams={'timeperiod': tplines})
+roc      = TAFactor("ROC", kwparams={'timeperiod': tplines})
 # 1 day rate-of-change of a triple smooth EMA
-trix     = fg.TAFactor("TRIX", kwparams={'timeperiod': tplines})
+trix     = TAFactor("TRIX", kwparams={'timeperiod': tplines})
 # COMMODITY Channel Index
-cci      = fg.TAFactor("CCI", kwparams={
+cci      = TAFactor("CCI", kwparams={
                                   'timeperiod': tplines})
 # Relative Strength Index
-rsi = fg.TAFactor("RSI", kwparams={
+rsi = TAFactor("RSI", kwparams={
                                    'timeperiod': tplines})
 # Average Directional Movement Index Rating
-adxr = fg.TAFactor("ADXR", kwparams={
+adxr = TAFactor("ADXR", kwparams={
                                     'timeperiod': tplines})
 
 # Williams' %R
-willr =  fg.TAFactor("WILLR", kwparams={
+willr =  TAFactor("WILLR", kwparams={
                           'timeperiod': tplines})
 # Momentum
-mom = fg.TAFactor("MOM", kwparams={
+mom = TAFactor("MOM", kwparams={
                           'timeperiod': tplines})
 # Balance of Power
-bop = fg.TAFactor("BOP")
+bop = TAFactor("BOP")
 ######Momentum Indicator End######
+
+
 """
 Stat Indicator
 """
 # Pearson's Corrlation Coefficient
-correl = fg.TAFactor("CORREL", kwparams={
+correl = TAFactor("CORREL", kwparams={
                                      'timeperiod': tplines})
 # Linear Regression Slope
-linear_slop = fg.TAFactor("LINEARREG_SLOPE", kwparams={
+linear_slop = TAFactor("LINEARREG_SLOPE", kwparams={
                                      'timeperiod': tplines})
 # Time Series Forcast
-tsf = fg.TAFactor("TSF", kwparams={
+tsf = TAFactor("TSF", kwparams={
                                     'timeperiod': tplines})
 
-linearreg = fg.TAFactor("LINEARREG", kwparams={
+linearreg = TAFactor("LINEARREG", kwparams={
                           'timeperiod': tplines})
-linear_intercept = fg.TAFactor("LINEARREG_INTERCEPT", kwparams={
+linear_intercept = TAFactor("LINEARREG_INTERCEPT", kwparams={
                           'timeperiod': tplines})
 
-stddev =  fg.TAFactor("STDDEV", kwparams={
+stddev =  TAFactor("STDDEV", kwparams={
                           'timeperiod': tplines})
-zscore =  fg.TAFactor("ZSCORE", kwparams={
+zscore =  TAFactor("ZSCORE", kwparams={
                           'timeperiod': tplines})
 ######Stat Indicator End######
+
 """
 Volatility Indicator
 """
 # Normalized Average True Range
-natr = fg.TAFactor("NATR", kwparams={
+natr = TAFactor("NATR", kwparams={
                                    'timeperiod': tplines})
 # Average True Range
-atr =  fg.TAFactor("ATR", kwparams={
+atr =  TAFactor("ATR", kwparams={
                           'timeperiod': tplines})
 # True Range
-trange = fg.TAFactor("TRANGE")
+trange = TAFactor("TRANGE")
 ######Vol Indicator End######
 """
 Overlap Studies
 """
 # double exponential moving average
-dema = fg.TAFactor("DEMA", kwparams={
+dema = TAFactor("DEMA", kwparams={
                           'timeperiod': tplines})
 
 # exponential moving average
-ema = fg.TAFactor("EMA", kwparams={
+ema = TAFactor("EMA", kwparams={
                           'timeperiod': tplines})
 # Hilbert Transform - Instantaneous Trendline
-ht_trendline = fg.TAFactor("HT_TRENDLINE")
+ht_trendline = TAFactor("HT_TRENDLINE")
 # Kaufman Adpative Moving Average
-kama = fg.TAFactor("KAMA", kwparams={
+kama = TAFactor("KAMA", kwparams={
                           'timeperiod': tplines})
 # Simply Moving Average
-sma = fg.TAFactor("SMA", kwparams={
+sma = TAFactor("SMA", kwparams={
                           'timeperiod': tplines})
 # Triple Exponential Moving Average (T3)
-t3 = fg.TAFactor("T3", kwparams={
+t3 = TAFactor("T3", kwparams={
                           'timeperiod': tplines})
 # Weighted Moving Average
-wma = fg.TAFactor("WMA", kwparams={
+wma = TAFactor("WMA", kwparams={
                           'timeperiod': tplines})
 ######Overlap Indicator End######
 
@@ -155,11 +155,6 @@ DEFAULT_COLS_paras = [cci, natr, tsf, roc, cmo, rsi, correl, adxr, trix,
                       t3, wma, mom, linearreg, linear_intercept, willr, atr]
 DEFAULT_COLS       = [trange, obv, bop, ht_trendline]
 DEFAULT_COLS_v1    = [trange, bop, ht_trendline]
-"""
-DEFAULT_COLS_paras = [cci, natr, tsf, roc, cmo, rsi, correl, adxr, trix,
-                      linear_slop, ultosc, aroon]
-DEFAULT_COLS = [trange, obv, bop]
-"""
 
 def extract_tafea(df, col_paras=DEFAULT_COLS_paras, cols=DEFAULT_COLS):
     """
