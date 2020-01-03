@@ -14,63 +14,69 @@ import numpy as np
 
 
 """
-Volume Indicator
-Total: 7 dimensions
-"""
-# On balance Volume
-obv = TAFactor("OBV")
-# Chaikin A/D Osciallator
-adosc = TAFactor("ADOSC",
-                kwparams={'fastperiod': [5, 5, 10, 10, 20, 20],
-                          'slowperiod': [15, 30, 30,40 40, 60]}
-                )
-
-"""
 Momentum Indicator
-Total: 15 + 3 + 2 = 20
+Total: 6*3 + 1= 19
 """
-apo = TAFactor("APO", kwparams={
-                         'fastperiod': [5, 30, 50],
-                         'slowperiod': [10, 60, 100]})
-# Ultimate Oscillator
-ultosc = TAFactor("ULTOSC", kwparams={
-                               'timeperiod1': [5, 10],
-                               'timeperiod2': [10, 30],
-                               'timeperiod3': [30, 60]})
-tplines_mom = [10, 50, 60]]
+TPLINES_MOM_L = [40, 50, 60]
+TPLINES_MOM_S = [5, 15, 25]
 # Money Flow Index
-mfi      = TAFactor("MFI", kwparams={'timeperiod': tplines_mom})
+mfi      = TAFactor("MFI", kwparams={'timeperiod': TPLINES_MOM_L})
 # Minus Directional Indicator
-di_minus = TAFactor("MINUS_DI", kwparams={'timeperiod': tplines_mom})
+di_minus = TAFactor("MINUS_DI", kwparams={'timeperiod': TPLINES_MOM_S})
 # Plus Directional Indicator
-di_plus  = TAFactor("PLUS_DI", kwparams={'timeperiod': tplines_mom})
+di_plus  = TAFactor("PLUS_DI", kwparams={'timeperiod': TPLINES_MOM_L})
 # COMMODITY Channel Index
-cci      = TAFactor("CCI", kwparams={'timeperiod': tplines_mom})
+cmo      = TAFactor("CMO", kwparams={'timeperiod': TPLINES_MOM_S})
 # Relative Strength Index
-rsi = TAFactor("RSI", kwparams={ 'timeperiod': tplines_mom})
+rsi = TAFactor("RSI", kwparams={'timeperiod': TPLINES_MOM_L})
+
+# Williams' %R
+willr =  TAFactor("WILLR", kwparams={'timeperiod': TPLINES_MOM_S})
+
+# Balance of Power
+bop = TAFactor("BOP")
+
 
 """
 Stat Indicator
-Total: 5 * 2= 10
+Total: 5 * 4= 20
 """
-tplines_stat = [30, 60]
+TPLINE_STAT = [5, 15, 30, 60]
 # Pearson's Corrlation Coefficient
-correl = TAFactor("CORREL", kwparams={'timeperiod': tplines_stat})
+correl = TAFactor("CORREL", kwparams={'timeperiod': TPLINE_STAT})
 # Linear Regression Slope
-linear_slop = TAFactor("LINEARREG_SLOPE", kwparams={'timeperiod': tplines_stat})
-# Time Series Forcast
-tsf = TAFactor("TSF", kwparams={'timeperiod': tplines_stat})
-stddev =  TAFactor("STDDEV", kwparams={'timeperiod': tplines_stat})
-zscore =  TAFactor("ZSCORE", kwparams={'timeperiod': tplines_stat})
-
+linear_slop = TAFactor("LINEARREG_SLOPE", kwparams={'timeperiod': TPLINE_STAT})
+stddev =  TAFactor("STDDEV", kwparams={'timeperiod': TPLINE_STAT})
+zscore =  TAFactor("ZSCORE", kwparams={'timeperiod': TPLINE_STAT})
 
 """
 Volatility Indicator
-Total: 2* 4= 8
+Total: 6
 """
-tplines_vol = [5, 10, 15, 30]
+TPLINE_VOL = [5, 15, 25, 35, 50, 60]
 # Normalized Average True Range
-natr = TAFactor("NATR", kwparams={'timeperiod': tplines_vol})
-# Average True Range
-atr =  TAFactor("ATR", kwparams={'timeperiod': tplines_vol})
+natr = TAFactor("NATR", kwparams={'timeperiod': TPLINE_VOL})
+
+
+DEFAULT_COLS_paras = [mfi, di_minus,di_plus, rsi, willr, cmo, correl, linear_slop, stddev, zscore,natr]
+DEFAULT_COLS       = [bop]
+
+
+def extract_tafea(df, col_paras=DEFAULT_COLS_paras, cols=DEFAULT_COLS):
+    """
+    extract ta features, return the dataframe with features columns
+    inputs:
+     - df: should contain symbol, date, close, high, open, low and volume
+           sort by date
+     - col_paras: features names that need hyper-parameters
+     - col: features names that do not need hyper-parameters
+     return:
+     - df: that will contain feature columns
+    """
+    features = col_paras[0].run(df)
+    for idx in range(1, len(col_paras)):
+        features.extend(col_paras[idx].run(df))
+    for col in cols:
+        features.append(col(df))
+    return pd.concat(features, axis=1)
 
