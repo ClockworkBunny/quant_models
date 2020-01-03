@@ -82,7 +82,11 @@ Range from -360 to 360
 
 * **HT_PHASOR** - Hilbert Transform - Phasor Components
 
+return two values
+
 * **HT_SINE** - Hilbert Transform - SineWave
+
+return two values
 
 * HT_TRENDMODE - Hilbert Transform - Trend vs Cycle Mode
 
