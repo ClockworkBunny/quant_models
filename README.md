@@ -9,6 +9,7 @@ Some code sinppet for quant trading with a foucs on machine learning application
 **Basic dataformat**: the input data format is a pandas dataframe with the datetime index. And it should be ordered by the time. At the same time, it has ohlcv format.
 
 **Demo Notebooks**: The folder ```TestingNotebooks``` have all the ipython notebooks that contain the testing logics:
+
     * utils functions
     * info-driven bar
     * Probabilistic of backtesting overfitting
