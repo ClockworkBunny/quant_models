@@ -96,12 +96,12 @@ class NTAFactor(Factor):
         the custom function that compute normalized ADOSC
         range 0-1
         """
-        real  = talib.ADOSC(df.loc[:, self.map_dict['high']].values,
-                           df.loc[:, self.map_dict['low']].values,
-                           df.loc[:, self.map_dict['close']].values,
-                           df.loc[:, self.map_dict['volume']].values,
-                           fastperiod=fastperiod,
-                           slowperiod=slowperiod)
+        real             = talib.ADOSC(df.loc[:, self.map_dict['high']].values,
+                                       df.loc[:, self.map_dict['low']].values,
+                                       df.loc[:, self.map_dict['close']].values,
+                                       df.loc[:, self.map_dict['volume']].values,
+                                       fastperiod=fastperiod,
+                                        slowperiod=slowperiod)
         min_val, max_val = talib.MINMAX(real, timeperiod=normperiod)
 
         final_fea = (real - min_val) / (max_val - min_val)
