@@ -49,7 +49,7 @@ The idea behind the triple-bar labeling lies that it consider the path of the pr
         - Touch the bottom line, assign 1
         - Else, assgin 0
 
-    The advantage of meta-label method is the automatic bet sizing capabilities. If you apply some ml algos with prob. output on the above binary classification problem(0 vs 1), the prob can be the sizing output.
+    The advantages of meta-label method lie in that the automatic bet sizing capabilities. If you apply some ml algos with prob. output on the above binary classification problem(0 vs 1), the prob can be the sizing output.
 
 ## Part 4 Potfolio Optimization
 
