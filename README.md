@@ -62,7 +62,11 @@ This part is based on the [deep-portfolio-management](https://github.com/Rachnog
 5. Foreacsting-based Portfolios
 6. Reinforcement Learning Approaches
 
-## Part 5 Utils Module
+## Part 5 Technical  Features
+
+This part is a high-level wrapper of the ta-lib. Another modification is that we want to normalize the features.
+
+## Part 6 Utils Module
 
 **Supported features**:
 
