@@ -2,17 +2,17 @@
 
 Basically, in this folder, three kinds of ta features are provided:
 
-1. Original TA Features:
+1. **Original TA Features**:
 
-Some TA factors which are normalized already such as RSI. The class is in **_ta_factors.py**.
+Some TA factors which are normalized already such as RSI. The class is in `_ta_factors.py`.
 
-2. Normalized TA Features:
+2. **Normalized TA Features**:
 
-Some TA factors which are normalized already such as RSI. The class is in **_nta_factors.py**.
+Some TA factors are normalized in this class. The class is in `_nta_factors.py`.
 
-3. Pattern 
+3. **Pattern Counting Features**:
 
-Some details about the invidual indicators are provided: 
+Based on traditional pattern recognition factors, we count how many buy signal happen and how many sell signal happe. EMA is applied for a given lookback period. The class is in `_patterns_factors.py`.
 
 ## Monmentum Indicators
 
