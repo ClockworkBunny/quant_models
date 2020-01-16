@@ -1,6 +1,18 @@
 # Notes for TA Features
 
-Check the indicators provided by talib one by one.
+Basically, in this folder, three kinds of ta features are provided:
+
+1. Original TA Features:
+
+Some TA factors which are normalized already such as RSI. The class is in **_ta_factors.py**.
+
+1. Normalized TA Features:
+
+Some TA factors which are normalized already such as RSI. The class is in **_nta_factors.py**.
+
+
+
+Some details about the invidual indicators are provided: 
 
 ## Monmentum Indicators
 

@@ -110,3 +110,4 @@ if __name__ == '__main__':
     #design factor
     stoch = NTAFactor('NAPO', kwparams={'fast_period': [
                      9, 9, 9, 5, 5, 5], 'slow_period': [6, 3, 2, 4, 3, 2]})
+

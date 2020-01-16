@@ -64,7 +64,7 @@ This part is based on the [deep-portfolio-management](https://github.com/Rachnog
 
 ## Part 5 Technical  Features
 
-This part is a high-level wrapper of the ta-lib. Another modification is that we want to normalize the features.
+This part is a high-level wrapper of the ta-lib. In addition, we are trying to combine several ta indicators into a new feature, which is normalized.
 
 ## Part 6 Utils Module
 
