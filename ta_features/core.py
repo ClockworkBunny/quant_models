@@ -5,6 +5,8 @@ Author: Zhao Rui, Quant Research, Harveston
 ==============================================
 """
 from ._ta_factors import TAFactor
+from ._nta_factors import NTAFactor
+from ._pattern_factors import PatternFactor
 import pandas as pd
 import datetime
 import numpy as np
@@ -58,7 +60,24 @@ TPLINE_VOL = [5, 15, 25, 35, 50, 60]
 natr = TAFactor("NATR", kwparams={'timeperiod': TPLINE_VOL})
 
 
-DEFAULT_COLS_paras = [mfi, di_minus,di_plus, rsi, willr, cmo, correl, linear_slop, stddev, zscore,natr]
+# Pattern Features
+TPATTERNS = [10, 20, 40, 60]
+patternnumber = PatternFactor("Pattern_num", kwparams={'timeperiod': TPATTERNS})
+
+# Normalized Fea
+TFAST = [10, 20, 40]
+TSLOW = [20, 40, 60]
+TNROM = [40, 50, 60]
+nma   = NTAFactor("NMA", kwparams={'fastperiod': TFAST, 'slowperiod': TSLOW})
+nema  = NTAFactor("NEMA", kwparams={'fastperiod': TFAST, 'slowperiod': TSLOW})
+nboll = NTAFactor("NBOLL", kwparams={'timeperiod': TNROM})
+nad   = NTAFactor("NAD", kwparams={'normperiod': TNROM})
+nadosc = NTAFactor("NADOSC", kwparams={'fastperiod': TFAST, 'slowperiod': TSLOW,
+                                       'normperiod': TNROM})
+
+DEFAULT_COLS_paras = [mfi, di_minus,di_plus, rsi, willr, cmo,
+                      correl, linear_slop, stddev, zscore,natr,
+                      patternnumber, nma, nema,nboll, nad, nadosc]
 DEFAULT_COLS       = [bop]
 
 

@@ -9,15 +9,15 @@ import talib
 from ._base_factors import Factor
 
 class NTAFactor(Factor):
-    KNOWN_FACTORS = ['NAPO', 'NBOLL', 'NAPOEMA_factor', 'NADOSC_Factor', 'NAD_Factor']
+    KNOWN_FACTORS = ['NMA', 'NBOLL', 'NEMA', 'NADOSC', 'NAD']
 
     def __init__(self, name, map_dict={}, params=[], kwparams={}, outname=[]):
         if name in self.KNOWN_FACTORS:
-            CALLER_MAP = {'NAPO':           [self.NAPO_factor, ['NAPO']],
+            CALLER_MAP = {'NMA':           [self.NMA_factor, ['NMA']],
                           'NBOLL':          [self.NBOLL_Factor, ['NBOLL']],
-                          'NAPOEMA_factor': [self.NAPOEMA_factor, ['NAPOEMA_factor']],
-                          'NADOSC_Factor':  [self.NADOSC_Factor, ['NADOSC_Factor']],
-                          'NAD_Factor':     [self.NAD_Factor, ['NAD_Factor']],
+                          'NEMA':          [self.NEMA_factor, ['NEMA']],
+                          'NADOSC':  [self.NADOSC_Factor, ['NADOSC']],
+                          'NAD':     [self.NAD_Factor, ['NAD']],
                           }
             caller = CALLER_MAP[name][0]
             if len(outname) > 0:
@@ -39,8 +39,7 @@ class NTAFactor(Factor):
         else:
             raise IndexError('Unknown TA.')
 
-
-    def NAPO_factor(self, df, fastperiod=12, slowperiod=26, matype=0):
+    def NMA_factor(self, df, fastperiod=12, slowperiod=26, matype=0):
         """
         the custom function that compute normalized apo
         the equation is (fast ma - slow ma)/slowma
@@ -51,16 +50,17 @@ class NTAFactor(Factor):
                                 slowperiod, matype)
         return numerator/denominator
 
-    def NAPOEMA_factor(self, df, fastperiod=12, slowperiod=26, matype=0):
+    def NEMA_factor(self, df, fastperiod=12, slowperiod=26):
         """
         the custom function that compute normalized apo
-        the equation is (fast ma - slow ma)/slowma
+        the equation is (fast ma - slow ma)/slow EMA
         """
-        numerator   =  talib.APO(df.loc[:, self.map_dict['default']].values,
-                                fastperiod, slowperiod, matype)
+        numerator   =  talib.EMA(df.loc[:, self.map_dict['default']].values,
+                                fastperiod)
         denominator =  talib.EMA(df.loc[:, self.map_dict['default']].values,
-                                slowperiod, matype)
-        return numerator/denominator
+                                slowperiod)
+        final_fea = (numerator - denominator)/denominator
+        return final_fea
 
     def NBOLL_Factor(self, df, timeperiod):
         """
@@ -73,8 +73,6 @@ class NTAFactor(Factor):
                                                         nbdevdn=2,
                                                         matype=0)
         return 2*(df.loc[:, self.map_dict['default']].values - middleband) / (upperband - lowerband)
-
-
 
     def NAD_Factor(self, df, normperiod=100):
         """
@@ -106,6 +104,7 @@ class NTAFactor(Factor):
 
         final_fea = (real - min_val) / (max_val - min_val)
         return final_fea
+
 
 if __name__ == '__main__':
     #design factor
