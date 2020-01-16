@@ -14,6 +14,9 @@ Some code sinppet for quant trading with a foucs on machine learning application
     * info-driven bar
     * Probabilistic of backtesting overfitting
     * Testing Sharpe
+    * TA features generation
+    * Label the data based on triple bar methods
+    * Portfolio Investing
 
 ## Part 1 CustomBar Projects
 
