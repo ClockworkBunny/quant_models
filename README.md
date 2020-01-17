@@ -69,7 +69,11 @@ This part is based on the [deep-portfolio-management](https://github.com/Rachnog
 
 This part is a high-level wrapper of the ta-lib. In addition, we are trying to combine several ta indicators into a new feature, which is normalized.
 
-## Part 6 Utils Module
+## Part 6 Filters
+
+Here, it contain sevearl smoothing technqiues including wavelet and emd. Then, a rolling wrap has been built upon these methods.
+
+## Part 7 Utils Module
 
 **Supported features**:
 
