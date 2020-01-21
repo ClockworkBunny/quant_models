@@ -3,6 +3,8 @@ General python utility functions
 """
 import pandas as pd
 import pytz as tz
+import matplotlib.pyplot as plt
+
 # used by convert_tz func.
 TZ_Dict =      {'SG':      tz.timezone('Singapore'),
                 'CN':      tz.timezone('Singapore'),
@@ -171,3 +173,50 @@ def detect_duration(inputdf, used_col='rt', num_month=1):
                 min_sum = current_sum
         return {'profit': [inputdf.index[profit_idx-num_days+1], inputdf.index[profit_idx]],
                 'loss':   [inputdf.index[loss_idx-num_days+1], inputdf.index[loss_idx]]}
+
+
+def bs_plot(inputdf, used_col=['open', 'bs'], file_name='test'):
+    """
+    visualze the buy sell points
+
+    :args
+    inputdf: it is the input dataframe bs dataframe:
+                1. has the buy sell column
+                2. has the price column
+    used_col: two columns will be used
+    file_name: the figure names
+
+    :return
+    save the figure
+    """
+    idx_long = []
+    idx_short= []
+    trade_signal = inputdf['{}'.format(used_col[1])].tolist()
+    closex       = inputdf['{}'.format(used_col[0])].tolist()
+    for idx, ele in enumerate(trade_signal):
+        if ele == 1:
+            idx_long.append(idx)
+        elif ele == -1:
+            idx_short.append(idx)
+    fig = plt.figure()
+    ax  = fig.add_subplot(1, 1, 1)
+    for longidx, ele in enumerate(idx_long):
+        if ele + 1 < len(closex):
+            ax.axvspan(ele, ele+1, alpha=0.5, color='red')
+            if longidx == 0:
+                ax.plot(ele, closex[ele], marker='x', color='black')
+            else:
+                if (ele -1) != idx_long[longidx-1]:
+                    ax.plot(ele, closex[ele],marker='x', color='black')
+
+    for shortidx, ele in enumerate(idx_short):
+        if ele + 1 < len(closex):
+            ax.axvspan(ele, ele+1, alpha=0.5, color='green')
+            if shortidx == 0:
+                ax.plot(ele, closex[ele], marker='x', color='black')
+            else:
+                if (ele -1) != idx_short[longidx-1]:
+                    ax.plot(ele, closex[ele],marker='x', color='black')
+    ax.legend(['short is green, long is red'])
+    ax.plot(range(len(closex)), closex)
+    plt.savefig('bspoint_{}.png'.format(file_name))
