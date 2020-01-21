@@ -189,6 +189,8 @@ def bs_plot(inputdf, used_col=['open', 'bs'], file_name='test'):
     :return
     save the figure
     """
+    start_time = inputdf.index.date[0]
+    end_time   = inputdf.index.date[-1]
     idx_long = []
     idx_short= []
     trade_signal = inputdf['{}'.format(used_col[1])].tolist()
@@ -215,8 +217,8 @@ def bs_plot(inputdf, used_col=['open', 'bs'], file_name='test'):
             if shortidx == 0:
                 ax.plot(ele, closex[ele], marker='x', color='black')
             else:
-                if (ele -1) != idx_short[longidx-1]:
+                if (ele -1) != idx_short[shortidx-1]:
                     ax.plot(ele, closex[ele],marker='x', color='black')
-    ax.legend(['short is green, long is red'])
+    ax.legend(['short is green, long is red\nfrom {} to {}'.format(start_time, end_time)])
     ax.plot(range(len(closex)), closex)
     plt.savefig('bspoint_{}.png'.format(file_name))

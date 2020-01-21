@@ -44,3 +44,4 @@ from .metrics import drawdown_from_rtns
 from .metrics import max_drawdown
 from .metrics import max_drawdown_from_rtns
 from .utils import detect_duration
+from .utils import bs_plot
