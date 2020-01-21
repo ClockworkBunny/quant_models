@@ -43,3 +43,4 @@ from .metrics import calmar_ratio
 from .metrics import drawdown_from_rtns
 from .metrics import max_drawdown
 from .metrics import max_drawdown_from_rtns
+from .utils import detect_duration

@@ -134,3 +134,40 @@ def sample_pnl(inputdf, freq='1D', cum_mode=True):
     dfoutput.sort_index(inplace=True)
     dfoutput.dropna(inplace=True)
     return dfoutput
+
+
+def detect_duration(inputdf, used_col='rt', num_month=1):
+    """
+    the function that detect which duration that the model performs best and worst
+
+    :args
+    inputdf: it is the daily input dataframe pnl dataframe:
+                1. index:   datetime in pd.datetime format
+                2. columns: name is used_col, which is return instead of cum return
+    num_moth: how long will the duration to be checked.
+
+    :return
+    the dataframe that is resampled based on freq, which is the normal return
+    """
+    # trading days in months is set to be 21
+    num_days = num_month * 21
+    rt_array  = inputdf['{}'.format(used_col)].values
+    if rt_array.shape[0] < num_days:
+        print('data length is not enough')
+        return None
+    else:
+        max_sum     = sum(rt_array[0:num_days])
+        min_sum     = sum(rt_array[0:num_days])
+        current_sum = sum(rt_array[0:num_days])
+        profit_idx  = num_days - 1
+        loss_idx    = num_days - 1
+        for idx_left in range(num_days, rt_array.shape[0]):
+            current_sum = current_sum - rt_array[idx_left-num_days] + rt_array[idx_left]
+            if current_sum > max_sum:
+                profit_idx = idx_left
+                max_sum = current_sum
+            if current_sum < min_sum:
+                loss_idx = idx_left
+                min_sum = current_sum
+        return {'profit': [inputdf.index[profit_idx-num_days+1], inputdf.index[profit_idx]],
+                'loss':   [inputdf.index[loss_idx-num_days+1], inputdf.index[loss_idx]]}

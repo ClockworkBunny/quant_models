@@ -1,0 +1,14 @@
+
+import numpy as np
+# distinguish between slicing and slice assignment
+x = np.array([[ 5,  7, 22, 97, 54],
+    [62, 77, 23, 73, 61]])
+print(x)
+r = x[:,1] # create a slice of x, assign to r
+print(r)
+r[:] = 1 # as slice points to the original array, changing values affect original array
+
+#r = 1 # this is assignment, only changes value for r
+print(r)
+print(x)
+print(np.__version__)
