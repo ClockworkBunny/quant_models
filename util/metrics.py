@@ -784,3 +784,20 @@ def compute_deflated_sharpe_ratio(estimated_sharpe,
                               ((kurtosis - 1) / 4) * estimated_sharpe**2
                               )
                     )
+
+def trade_num_stat(trade_signal):
+    """
+    Compute the number of trade based on the input list or array of buy-sell points
+
+    :args
+    1. df_pnl: the dataframe that cotain three columns:
+        * bs: buy sell point
+
+    :return
+    the deflated ratio which is in the range [0,1]. The high,the better.
+    """
+    if type(trade_signal) == list:
+        trade_signal = np.array(trade_signal)
+    all_count_signal = np.concatenate([[0], trade_signal, [0]])
+    trade_num        = np.sum(np.abs(np.diff(all_count_signal)))
+    return trade_num/2
