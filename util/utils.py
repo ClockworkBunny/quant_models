@@ -222,3 +222,30 @@ def bs_plot(inputdf, used_col=['open', 'bs'], file_name='test'):
     ax.legend(['short is green, long is red\nfrom {} to {}'.format(start_time, end_time)])
     ax.plot(range(len(closex)), closex)
     plt.savefig('bspoint_{}.png'.format(file_name))
+
+
+def combine_pnls(dfpnl, weights=None):
+    """
+
+    :args
+    dfpnllist:
+    a list of dataframe that each dataframe has the datetime as the index
+    and the column "pnl" contain all the value.
+
+    used_col: two columns will be used
+    file_name: the figure names
+
+    :return
+    return the final dataframe
+    """
+    if weights == None:
+        weights = [1.0/len(dfpnl)] * len(dfpnl)
+    for idx in range(len(dfpnl)):
+        dfpnl[idx]['pnl'] = dfpnl[idx]['pnl']*weights[idx]
+    finaldf = dfpnl[0].copy()
+    for idx in range(2, len(dfpnl)):
+        finaldf = finaldf.merge(dfpnl[idx], how='outer', on='datetime')
+    finaldf.sort_index(inplace=True)
+    finaldf.fillna(value=0, inplace=True)
+    finaldf['pnl'] = finaldf.sum(axis = 1)
+    return finaldf[['pnl']]
