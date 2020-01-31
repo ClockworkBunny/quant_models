@@ -73,7 +73,11 @@ This part is a high-level wrapper of the ta-lib. In addition, we are trying to c
 
 Here, it contain sevearl smoothing technqiues including wavelet and emd. Then, a rolling wrap has been built upon these methods.
 
-## Part 7 Utils Module
+## Part 7 Long-Short Strategy Modules
+
+Here, some modules are provided in this folder.
+
+## Part 8 Utils Module
 
 **Supported features**:
 
