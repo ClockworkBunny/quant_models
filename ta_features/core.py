@@ -1,6 +1,12 @@
 """
 ==============================================
 Code for prepare features for CNA BS Model
+
+# Imporant Warning:
+
+The ta features are computed from the pv series that contain open, high, low, close and volume. 
+The close price is the timestamp's price.
+
 Author: Zhao Rui, Quant Research, Harveston
 ==============================================
 """

@@ -95,7 +95,7 @@ class TAFactor(Factor):
                              'high': 'high',
                              'low': 'low',
                              'volume': 'volume',
-                             'default': 'open'}
+                             'default': 'close'}
 
             for key in map_dict:
                 self.map_dict[key] = map_dict[key]
