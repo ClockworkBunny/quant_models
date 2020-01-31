@@ -1,11 +1,9 @@
 import pandas as pd
 import numpy as np
 
-class LS_Merge():
+class LS_Test:
     """
-    Abstract base class which contains the structure which is shared between the various standard and information
-    driven bars. There are some methods contained in here that would only be applicable to information bars but
-    they are included here so as to avoid a complicated nested class structure.
+    The class that help the development of LS strategy, which is mainly focused on PNL computation
     """
 
     def __init__(self, N=2, rank_descend=True):
@@ -23,11 +21,24 @@ class LS_Merge():
         self.df_exeps  = []
         self.all_ind   = None
         self.all_exep  = None
+
     def load_data(self, df_indlist, df_exepslist):
+    """
+    for df_indlist: each element is a dataframe having the indicator value for one index/equity.
+        1.The index is "datetime" in pd.datetime type
+        2.The column name is indicator_{}.format(idx in list)
+
+    The corresponding list is df_exepslist, each element is a dataframe having the exe price for one index/equity.
+        1.The index is "datetime" in pd.datetime type
+        2.The column name is indicator_{}.format(idx in list)
+    """
         self.df_inds  = df_indlist
         self.df_exeps = df_exepslist
 
     def align_data(self):
+        """
+        union the dataframe from price and indicators
+        """
         all_ind = self.df_inds[0].copy()
         all_exep = self.df_exeps[0].copy()
         for idx in range(1, len(self.df_inds)):
@@ -46,6 +57,9 @@ class LS_Merge():
         return all_ind, all_exep
 
     def gen_buysell(self):
+        """
+        generator buy sell point based on ranking
+        """
         all_bs = self.all_ind.copy()
         for idx in range(all_bs.shape[0]):
             ind_array = self.all_ind.iloc[idx].values
@@ -60,6 +74,10 @@ class LS_Merge():
         return all_bs
 
     def gen_pnl(self, all_bs):
+        """
+        based on buysell points, compute the pnl of the whole portfoilo
+        return the whole portfoilo daily pnl,  each individual equity pnl
+        """
         for idx in range(len(self.df_inds)):
             self.all_exep['rt_{}'.format(idx)] = self.all_exep['exep_{}'.format(idx)].pct_change()
             self.all_exep['rt_{}'.format(idx)] = self.all_exep['rt_{}'.format(idx)].shift(-1)
@@ -67,6 +85,7 @@ class LS_Merge():
         for idx in range(len(self.df_inds)):
             all_pnl['lsrt_{}'.format(idx)] = all_pnl['rt_{}'.format(idx)] * all_bs['indicator_{}'.format(idx)]
         all_pnl         = all_pnl.loc[:, all_pnl.column.str.contains('lsrt')]
+        all_pnl_idv     = all_pnl.copy()
         all_pnl['lsrt'] = all_pnl.sum(axis=1)
-    return all_pnl[['lsrt']]
+    return all_pnl[['lsrt']], all_pnl_idv
 
