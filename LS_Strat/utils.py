@@ -1,0 +1,72 @@
+import pandas as pd
+import numpy as np
+
+class LS_Merge():
+    """
+    Abstract base class which contains the structure which is shared between the various standard and information
+    driven bars. There are some methods contained in here that would only be applicable to information bars but
+    they are included here so as to avoid a complicated nested class structure.
+    """
+
+    def __init__(self, N=2, rank_descend=True):
+        """
+        Constructor
+
+        # args
+            threshold : the sampling threshold
+            dictcol : dict that map col names to defined col names (datetime, price, volume)
+        """
+        # Base properties
+        self.N   = N
+        self.rank_descend = rank_descend
+        self.df_inds   = []
+        self.df_exeps  = []
+        self.all_ind   = None
+        self.all_exep  = None
+    def load_data(self, df_indlist, df_exepslist):
+        self.df_inds  = df_indlist
+        self.df_exeps = df_exepslist
+
+    def align_data(self):
+        all_ind = self.df_inds[0].copy()
+        all_exep = self.df_exeps[0].copy()
+        for idx in range(1, len(self.df_inds)):
+            all_ind = all_ind.merge(self.df_inds[idx], how='outer', on='datetime')
+            all_exep = all_exep.merge(self.df_exeps[idx], how='outer', on='datetime')
+        # merge will disorder
+        all_ind.sort_index(inplace=True)
+        all_ind.fillna(method='ffill', inplace=True)
+        all_ind.dropna(inplace=True)
+        all_exep.sort_index(inplace=True)
+        all_exep.fillna(method='ffill', inplace=True)
+        all_exep.dropna(inplace=True)
+        assert(all_exep.shape[0]==all_ind.shape[0])
+        self.all_ind = all_ind
+        self.all_exep = all_exep
+        return all_ind, all_exep
+
+    def gen_buysell(self):
+        all_bs = self.all_ind.copy()
+        for idx in range(all_bs.shape[0]):
+            ind_array = self.all_ind.iloc[idx].values
+            all_bs.iloc[idx] = 0
+            indices_ranked = np.argsort(ind_array)
+            if self.rank_descend:
+                indices_ranked = indices_ranked[::-1]
+            long_indices  = indices_ranked[-self.N:]
+            short_indices = indices_ranked[:self.N]
+            all_bs.iloc[idx, long_indices]  = 1
+            all_bs.iloc[idx, short_indices] = -1
+        return all_bs
+
+    def gen_pnl(self, all_bs):
+        for idx in range(len(self.df_inds)):
+            self.all_exep['rt_{}'.format(idx)] = self.all_exep['exep_{}'.format(idx)].pct_change()
+            self.all_exep['rt_{}'.format(idx)] = self.all_exep['rt_{}'.format(idx)].shift(-1)
+        all_pnl = self.all_exep.fillna(0)
+        for idx in range(len(self.df_inds)):
+            all_pnl['lsrt_{}'.format(idx)] = all_pnl['rt_{}'.format(idx)] * all_bs['indicator_{}'.format(idx)]
+        all_pnl         = all_pnl.loc[:, all_pnl.column.str.contains('lsrt')]
+        all_pnl['lsrt'] = all_pnl.sum(axis=1)
+    return all_pnl[['lsrt']]
+
