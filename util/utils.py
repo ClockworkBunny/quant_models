@@ -175,7 +175,7 @@ def detect_duration(inputdf, used_col='rt', num_month=1):
                 'loss':   [inputdf.index[loss_idx-num_days+1], inputdf.index[loss_idx]]}
 
 
-def bs_plot(inputdf, used_col=['open', 'bs'], file_name='test'):
+def bs_plot(inputdf, used_col=['open', 'bs'], file_name='test', folder_name=""):
     """
     visualze the buy sell points
 
@@ -221,7 +221,10 @@ def bs_plot(inputdf, used_col=['open', 'bs'], file_name='test'):
                     ax.plot(ele, closex[ele],marker='x', color='black')
     ax.legend(['short is green, long is red\nfrom {} to {}'.format(start_time, end_time)])
     ax.plot(range(len(closex)), closex)
-    plt.savefig('bspoint_{}.png'.format(file_name))
+    if folder_name != "":
+        plt.savefig(folder_name + 'bspoint_{}.png'.format(file_name))
+    else:
+        plt.savefig('bspoint_{}.png'.format(file_name))
 
 
 def combine_pnls(dfpnl, weights=None):
