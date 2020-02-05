@@ -16,8 +16,8 @@ from scipy.stats import norm
 
 
 
-# default no. of trading days in a year, 252.
-trading_days = 252
+# default no. of trading days in a year, 255.
+trading_days = 255
 gamma = 0.5772156649015328606
 e = np.exp(1)
 
