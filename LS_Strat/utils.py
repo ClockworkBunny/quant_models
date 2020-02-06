@@ -8,10 +8,12 @@ class LS_Test:
 
     def __init__(self, N=2, rank_descend=True):
         """
-        Constructor
+        Constructor, two important arguments should be passed
 
         # args
             threshold : the sampling threshold
+            if it is int type, it will be absolute number of stocks
+            if float, it will be relative percentage of stocks for selection
             dictcol : dict that map col names to defined col names (datetime, price, volume)
         """
         # Base properties
@@ -60,6 +62,10 @@ class LS_Test:
         """
         generator buy sell point based on ranking
         """
+        if type(self.N) == int:
+            used_num = self.N
+        else:
+            used_num = int(self.N * all_bs.shape[1])
         all_bs = self.all_ind.copy()
         for idx in range(all_bs.shape[0]):
             ind_array = self.all_ind.iloc[idx].values
@@ -67,8 +73,8 @@ class LS_Test:
             indices_ranked = np.argsort(ind_array)
             if self.rank_descend:
                 indices_ranked = indices_ranked[::-1]
-            long_indices  = indices_ranked[-self.N:]
-            short_indices = indices_ranked[:self.N]
+            long_indices  = indices_ranked[-used_num:]
+            short_indices = indices_ranked[:used_num]
             all_bs.iloc[idx, long_indices]  = 1
             all_bs.iloc[idx, short_indices] = -1
         return all_bs

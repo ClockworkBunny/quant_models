@@ -75,7 +75,7 @@ Here, it contain sevearl smoothing technqiues including wavelet and emd. Then, a
 
 ## Part 7 Long-Short Strategy Modules
 
-Here, some modules are provided in this folder.
+Here, some modules are provided in this folder. It mainly covers the pnl generation and buy-sell generation logics.
 
 ## Part 8 Utils Module
 
