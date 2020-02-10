@@ -100,3 +100,14 @@ Here, some modules are provided in this folder. It mainly covers the pnl generat
 4. multiprocess
 
     parallel computation
+
+
+#### Market Hour
+| Market  | Trading Hours  |
+|---------|---------|
+| CF1  |  09:00 - 17:30 |
+| VG1  |  09:00 - 17:30 |
+| GX1  |  09:00 - 17:30 |
+| Z 1  |  08:00 - 16:30 |
+| HI1  |  09:15 - 16:15 |
+| HC1  |  09:15 - 16:15 |
