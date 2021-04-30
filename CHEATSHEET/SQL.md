@@ -25,3 +25,12 @@ DELETE FROM Actors ORDER BY NetWorthInMillions DESC LIMIT 3;
 ```
 
 Then, TRUNCATE table; will remove all rows in the table
+
+3. Update Table
+```
+UPDATE table
+SET col1=val1, col2=val2,...coln=valn
+WHERE <condition?
+ORDER BY col5
+LIMIT 5;
+```
