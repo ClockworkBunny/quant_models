@@ -23,3 +23,5 @@ LIMIT 5;
 DELETE FROM Actors ORDER BY NetWorthInMillions DESC LIMIT 3;
 # we want to delete the top three actresses by net worth. We can accomplish that by using the ORDER BY and LIMIT clauses
 ```
+
+Then, TRUNCATE table; will remove all rows in the table
