@@ -34,3 +34,17 @@ WHERE <condition?
 ORDER BY col5
 LIMIT 5;
 ```
+4. Alter Table
+```
+ALTER TABLE table
+CHANGE oldColumnName newColumnName <datatype> <restrictions>;
+```
+
+```
+ALTER TABLE Actors MODIFY First_Name varchar(20) DEFAULT "Anonymous";
+ALTER TABLE Actors MODIFY First_Name varchar(300);
+ALTER TABLE Actors ADD MiddleName varchar(100);
+ALTER TABLE Actors DROP MiddleName;
+ALTER TABLE Actors ADD MiddleName varchar(100) AFTER DoB;
+#we'll drop the middle name column and add it after the date of birth (DoB) column as follows
+```
