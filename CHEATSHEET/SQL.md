@@ -48,3 +48,10 @@ ALTER TABLE Actors DROP MiddleName;
 ALTER TABLE Actors ADD MiddleName varchar(100) AFTER DoB;
 #we'll drop the middle name column and add it after the date of birth (DoB) column as follows
 ```
+
+5.
+```
+SELECT * FROM Actors WHERE NOT EXISTS (SELECT * FROM DigitalAssets WHERE BINARY URL LIKE "%good%");
+```
+Here, BINARY is makeing the string comparsion as case-sensitive.
+```
