@@ -54,4 +54,12 @@ ALTER TABLE Actors ADD MiddleName varchar(100) AFTER DoB;
 SELECT * FROM Actors WHERE NOT EXISTS (SELECT * FROM DigitalAssets WHERE BINARY URL LIKE "%good%");
 ```
 Here, BINARY is makeing the string comparsion as case-sensitive.
+
+
+```
+SELECT FirstName
+FROM Actors
+WHERE EXISTS (SELECT URL FROM DigitalAssets WHERE URL LIKE CONCAT ("%", FirstName, "%") AND AssetType="Twitter"); 
+```
+EXISTS OPERATOR is able to check conditions for the following query.
 ```
